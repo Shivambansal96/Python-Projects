@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grocery Shop Billing System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #28a745;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+    nav {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: #28a745;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    nav button.active {
+      background: #218838;
+    }
+    section {
+      display: none;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    section.active {
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #555;
+      color: white;
+    }
+    input, select {
+      padding: 6px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Grocery Shop Billing System</h1>
+</header>
+
+<div class="container">
+  <nav>
+    <button class="active" onclick="showTab('inventory')">Inventory</button>
+    <button onclick="showTab('billing')">Billing</button>
+    <button onclick="showTab('discounts')">Discounts</button>
+    <button onclick="showTab('reports')">Reports</button>
+  </nav>
+
+  <!-- Inventory Management -->
+  <section id="inventory" class="active">
+    <h2>Inventory Management</h2>
+    <input type="text" id="productName" placeholder="Product Name">
+    <input type="number" id="productPrice" placeholder="Price">
+    <button onclick="addProduct()">Add/Update Product</button>
+    <table id="inventoryTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price (₹)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Billing -->
+  <section id="billing">
+    <h2>Billing</h2>
+    <select id="billingProduct"></select>
+    <input type="number" id="billingQty" placeholder="Quantity" min="1">
+    <button onclick="addToCart()">Add to Cart</button>
+    <table id="cartTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="total" id="totalAmount">Total: ₹0</div>
+  </section>
+
+  <!-- Discounts -->
+  <section id="discounts">
+    <h2>Discount Module</h2>
+    <select id="discountProduct"></select>
+    <input type="number" id="discountValue" placeholder="Discount %" min="0" max="100">
+    <button onclick="applyDiscount()">Apply Discount</button>
+    <ul id="discountList"></ul>
+  </section>
+
+  <!-- Reports -->
+  <section id="reports">
+    <h2>Sales Summary</h2>
+    <table id="reportTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Total Sales (₹)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+  let inventory = [
+    { name: "Rice", price: 50 },
+    { name: "Wheat", price: 40 },
+    { name: "Sugar", price: 30 }
+  ];
+
+  let discounts = {};
+  let cart = [];
+  let reports = [];
+
+  function showTab(id) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+    if (id === "billing") populateProductSelect("billingProduct");
+    if (id === "discounts") populateProductSelect("discountProduct");
+  }
+
+  function renderInventory() {
+    let tbody = document.querySelector("#inventoryTable tbody");
+    tbody.innerHTML = "";
+    inventory.forEach(item => {
+      tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.price}</td></tr>`;
+    });
+  }
+
+  function addProduct() {
+    let name = document.getElementById("productName").value.trim();
+    let price = parseFloat(document.getElementById("productPrice").value);
+    if (!name || isNaN(price)) return alert("Enter valid product and price");
+
+    let existing = inventory.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      existing.price = price;
+    } else {
+      inventory.push({ name, price });
+    }
+    renderInventory();
+    populateProductSelect("billingProduct");
+    populateProductSelect("discountProduct");
+    document.getElementById("productName").value = "";
+    document.getElementById("productPrice").value = "";
+  }
+
+  function populateProductSelect(selectId) {
+    let select = document.getElementById(selectId);
+    select.innerHTML = "";
+    inventory.forEach(item => {
+      select.innerHTML += `<option value="${item.name}">${item.name} - ₹${item.price}</option>`;
+    });
+  }
+
+  function addToCart() {
+    let productName = document.getElementById("billingProduct").value;
+    let qty = parseInt(document.getElementById("billingQty").value);
+    if (!productName || isNaN(qty) || qty <= 0) return alert("Enter valid quantity");
+
+    let product = inventory.find(p => p.name === productName);
+    let discountPercent = discounts[productName] || 0;
+    let price = product.price * (1 - discountPercent / 100);
+
+    cart.push({ product: productName, qty, price });
+    renderCart();
+    document.getElementById("billingQty").value = "";
+  }
+
+  function renderCart() {
+    let tbody = document.querySelector("#cartTable tbody");
+    tbody.innerHTML = "";
+    let total = 0;
+    cart.forEach(item => {
+      let subtotal = item.qty * item.price;
+      total += subtotal;
+      tbody.innerHTML += `<tr>
+        <td>${item.product}</td>
+        <td>${item.qty}</td>
+        <td>₹${item.price.toFixed(2)}</td>
+        <td>₹${subtotal.toFixed(2)}</td>
+      </tr>`;
+    });
+    document.getElementById("totalAmount").textContent = `Total: ₹${total.toFixed(2)}`;
+    if (total > 0) {
+      reports.push({ date: new Date().toLocaleDateString(), total });
+      renderReports();
+    }
+  }
+
+  function applyDiscount() {
+    let productName = document.getElementById("discountProduct").value;
+    let value = parseFloat(document.getElementById("discountValue").value);
+    if (isNaN(value) || value < 0 || value > 100) return alert("Enter valid discount %");
+    discounts[productName] = value;
+    renderDiscounts();
+  }
+
+  function renderDiscounts() {
+    let ul = document.getElementById("discountList");
+    ul.innerHTML = "";
+    for (let product in discounts) {
+      ul.innerHTML += `<li>${product}: ${discounts[product]}% off</li>`;
+    }
+  }
+
+  function renderReports() {
+    let tbody = document.querySelector("#reportTable tbody");
+    tbody.innerHTML = "";
+    reports.forEach(r => {
+      tbody.innerHTML += `<tr><td>${r.date}</td><td>₹${r.total.toFixed(2)}</td></tr>`;
+    });
+  }
+
+  renderInventory();
+  populateProductSelect("billingProduct");
+  populateProductSelect("discountProduct");
+</script>
+</body>
+</html>

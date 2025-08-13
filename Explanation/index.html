@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project Hub • Interactive Explanation</title>
+    <meta name="description" content="Launchpad for all demo pages" />
+    <style>
+      :root {
+        --bg-start: #0f172a; /* slate-900 */
+        --bg-end: #1e293b;   /* slate-800 */
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+        --text: #e5e7eb;     /* gray-200 */
+        --muted: #94a3b8;    /* slate-400 */
+        --accent: #22d3ee;   /* cyan-400 */
+        --accent-2: #a78bfa; /* violet-400 */
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 16px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background: radial-gradient(1200px 800px at 10% -20%, #0ea5e9 0%, transparent 40%),
+                    radial-gradient(1000px 700px at 110% 10%, #7c3aed 0%, transparent 40%),
+                    linear-gradient(160deg, var(--bg-start), var(--bg-end));
+        background-attachment: fixed;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 20px 56px;
+      }
+
+      .header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 3.5vw, 40px);
+        letter-spacing: 0.4px;
+        line-height: 1.1;
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: clamp(14px, 2.2vw, 16px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      a.card {
+        position: relative;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 12px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        padding: 16px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(8px);
+        transform: translateY(0);
+        transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+        overflow: clip;
+        isolation: isolate;
+      }
+
+      a.card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(220px 120px at -10% -20%, rgba(34, 211, 238, 0.25), transparent 60%),
+                    radial-gradient(220px 120px at 110% 120%, rgba(167, 139, 250, 0.20), transparent 60%);
+        opacity: 0.7;
+        z-index: -1;
+      }
+
+      a.card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255,255,255,0.22);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      }
+
+      a.card:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.65), var(--shadow);
+      }
+
+      .card-media {
+        display: grid;
+        place-items: center;
+        height: 140px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(167, 139, 250, 0.08));
+        border: 1px solid rgba(255,255,255,0.14);
+      }
+
+      .card-title {
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        font-size: 16px;
+      }
+
+      /* Icon colors */
+      .c-cyan { color: #22d3ee; }
+      .c-violet { color: #a78bfa; }
+      .c-emerald { color: #34d399; }
+      .c-amber { color: #f59e0b; }
+      .c-rose { color: #fb7185; }
+      .c-blue { color: #60a5fa; }
+      .c-lime { color: #a3e635; }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <div>
+          <h1>Interactive Projects Hub</h1>
+          <p class="subtitle">Click a card to open its dedicated explanation</p>
+        </div>
+      </header>
+
+      <section class="grid" aria-label="Project links">
+        <a class="card" href="collegeEventManagement.html" aria-label="Open College Event Management">
+          <div class="card-media" aria-hidden="true">
+            <!-- Calendar / Event Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-cyan">
+              <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8 2v4M16 2v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/>
+              <rect x="7" y="12" width="4" height="3" rx="0.6" fill="currentColor"/>
+              <rect x="13" y="12" width="4" height="3" rx="0.6" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="card-title">College Event Management</div>
+        </a>
+
+        <a class="card" href="courierTracking.html" aria-label="Open Courier Tracking">
+          <div class="card-media" aria-hidden="true">
+            <!-- Package / Tracking Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-amber">
+              <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M12 12V3" stroke="currentColor" stroke-width="1.6"/>
+              <path d="m3 7.5 9 4.5 9-4.5" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div class="card-title">Courier Tracking</div>
+        </a>
+
+        <a class="card" href="flightBooking.html" aria-label="Open Flight Booking">
+          <div class="card-media" aria-hidden="true">
+            <!-- Airplane Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-blue">
+              <path d="M2 12l9 2 9 7-3-9 3-9-9 7-9 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="card-title">Flight Booking</div>
+        </a>
+
+        <a class="card" href="groceryBilling.html" aria-label="Open Grocery Billing">
+          <div class="card-media" aria-hidden="true">
+            <!-- Cart Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-lime">
+              <circle cx="9" cy="19" r="1.75" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="17" cy="19" r="1.75" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M3 4h2l2 11h10l2-7H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="card-title">Grocery Billing</div>
+        </a>
+
+        <a class="card" href="gymMembership.html" aria-label="Open Gym Membership">
+          <div class="card-media" aria-hidden="true">
+            <!-- Dumbbell Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-emerald">
+              <path d="M2.5 9.5h3v5h-3v-5Zm16 0h3v5h-3v-5ZM8 11h8v2H8v-2Z" fill="currentColor"/>
+              <path d="M5.5 9v6M18.5 9v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="card-title">Gym Membership</div>
+        </a>
+
+        <a class="card" href="libraryMembership.html" aria-label="Open Library Membership">
+          <div class="card-media" aria-hidden="true">
+            <!-- Book Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-violet">
+              <path d="M5 4h9a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8 4v13a3 3 0 0 0 3 3" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div class="card-title">Library Membership</div>
+        </a>
+
+        <a class="card" href="onlineQuiz.html" aria-label="Open Online Quiz">
+          <div class="card-media" aria-hidden="true">
+            <!-- Quiz / Help Icon -->
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="c-rose">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M9.75 9.75a2.25 2.25 0 1 1 3.9 1.5c-.6.6-1.05.9-1.05 1.75v.25" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="12" cy="17" r="1" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="card-title">Online Quiz</div>
+        </a>
+      </section>
+    </main>
+  </body>
+  </html>
+
+

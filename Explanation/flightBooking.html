@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flight Booking Simulation - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #0077cc;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-buttons button {
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    .tab-buttons button:hover {
+      background-color: #005fa3;
+    }
+
+    .tab-buttons button.active {
+      background-color: #004f8a;
+    }
+
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      color: #0077cc;
+    }
+
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Flight Booking Simulation</h1>
+  <p>A complete walkthrough of how this system works</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('flight-management')">Flight Management</button>
+  <button onclick="showTab('seat-booking')">Seat Booking</button>
+  <button onclick="showTab('cancellation')">Booking Cancellation</button>
+  <button onclick="showTab('reports')">Passenger Reports</button>
+  <button onclick="showTab('files')">JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This simulation mimics a mini airline booking system. Here's how it works in real-world terms:</p>
+  <ol>
+    <li>The airline <strong>adds flight details</strong> to the system (route, time, seats).</li>
+    <li>Customers <strong>book tickets</strong> for those flights, and the system tracks seats.</li>
+    <li>Customers can <strong>cancel bookings</strong> which frees up their seats.</li>
+    <li>The system can <strong>generate a list of passengers</strong> for any flight.</li>
+  </ol>
+  <p>All this data is stored in two files: <code>flights.json</code> and <code>passengers.json</code>.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Manage flights, passengers, and bookings.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Flight</code> – number, origin, destination, seat capacity, available seats.</li>
+      <li><code>Booking</code> – passenger name, seat number, flight reference.</li>
+      <li><code>FlightSystem</code> – manages flights and bookings.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ul>
+      <li>Add flights with schedules and capacity.</li>
+      <li>Book seats for passengers.</li>
+      <li>Cancel bookings (seat becomes available).</li>
+    </ul>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Flight AI-202 → Delhi → Mumbai → 60 seats.</li>
+      <li>Passenger A books a ticket → seat #15 reserved.</li>
+      <li>Passenger cancels → seat #15 is freed again.</li>
+    </ol>
+  </div>
+
+<div id="flight-management" class="tab-content">
+  <h2>1. Flight Schedule Management</h2>
+  <p>Admins add new flights with the following info:</p>
+  <ul>
+    <li><strong>Flight number</strong> – Unique ID like <code>AI101</code></li>
+    <li><strong>Source</strong> and <strong>Destination</strong> – e.g., <code>Delhi → Mumbai</code></li>
+    <li><strong>Date and Time</strong> – When the flight departs</li>
+    <li><strong>Total Seats</strong> – e.g., 150 seats on the plane</li>
+  </ul>
+  <p>The system saves this data to <code>flights.json</code>. No passengers are added yet.</p>
+</div>
+
+<div id="seat-booking" class="tab-content">
+  <h2>2. Seat Booking</h2>
+  <p>Steps when a passenger books a seat:</p>
+  <ol>
+    <li>Passenger selects a flight by flight number.</li>
+    <li>The system checks if <strong>available seats > 0</strong>.</li>
+    <li>If yes, it asks for passenger name and assigns a seat (e.g., <code>12A</code>).</li>
+    <li>Updates <code>flights.json</code> to decrease <code>available_seats</code>.</li>
+    <li>Saves passenger info in <code>passengers.json</code>.</li>
+  </ol>
+  <p>This ensures only available seats are booked.</p>
+</div>
+
+<div id="cancellation" class="tab-content">
+  <h2>3. Booking Cancellation</h2>
+  <p>If a passenger cancels their booking:</p>
+  <ol>
+    <li>The system finds their entry in <code>passengers.json</code>.</li>
+    <li>Removes their record.</li>
+    <li>Increases the <code>available_seats</code> in <code>flights.json</code>.</li>
+  </ol>
+  <p>This keeps flight data accurate.</p>
+</div>
+
+<div id="reports" class="tab-content">
+  <h2>4. Passenger List Reports</h2>
+  <p>To view who is flying on a flight:</p>
+  <ol>
+    <li>Select a flight number (e.g., <code>AI101</code>).</li>
+    <li>The system filters <code>passengers.json</code> by that flight number.</li>
+    <li>Displays all passengers and their seat numbers.</li>
+  </ol>
+  <p>This is useful for generating flight manifests or check-in lists.</p>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>JSON File Structures</h2>
+
+  <p><strong>flights.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "flight_number": "AI101",
+    "source": "Delhi",
+    "destination": "Mumbai",
+    "datetime": "2025-08-14 10:00",
+    "total_seats": 150,
+    "available_seats": 20
+  }
+]
+  </div>
+
+  <p><strong>passengers.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "name": "Shivam Bansal",
+    "flight_number": "AI101",
+    "seat_number": "12A"
+  },
+  {
+    "name": "Mohini Bansal",
+    "flight_number": "AI101",
+    "seat_number": "14B"
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Flight Booking Simulation – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

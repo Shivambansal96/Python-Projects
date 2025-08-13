@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Courier & Parcel Tracking - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #ff9800;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-buttons button {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    .tab-buttons button:hover {
+      background-color: #e68900;
+    }
+
+    .tab-buttons button.active {
+      background-color: #cc7a00;
+    }
+
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      color: #ff9800;
+    }
+
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Courier & Parcel Tracking</h1>
+  <p>Track parcels from sender to receiver with real-time status updates</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('parcel-registration')">Parcel Registration</button>
+  <button onclick="showTab('status-update')">Status Update</button>
+  <button onclick="showTab('delivery-confirmation')">Delivery Confirmation</button>
+  <button onclick="showTab('parcel-search')">Parcel Search</button>
+  <button onclick="showTab('files')">JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This application helps a courier company record parcels, track their status, and confirm deliveries. Here's how it works:</p>
+  <ol>
+    <li>Staff registers new parcels with sender and receiver details.</li>
+    <li>Status is updated as the parcel moves through transit stages.</li>
+    <li>Delivery is confirmed when the receiver signs for the parcel.</li>
+    <li>Users can search parcels by tracking ID to check status.</li>
+  </ol>
+  <p>Data is stored in <code>parcels.json</code> and <code>customers.json</code>.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Register parcels and track their delivery status.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Parcel</code> – ID, sender, receiver, weight, delivery status.</li>
+      <li><code>CourierService</code> – manages parcels (register, update status, search).</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ul>
+      <li>Register parcels with unique ID.</li>
+      <li>Update parcel status (In Transit, Out for Delivery, Delivered).</li>
+      <li>Search parcels by ID.</li>
+    </ul>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Parcel ID 101 created → Sender: A, Receiver: B.</li>
+      <li>Status updated: In Transit → Out for Delivery → Delivered.</li>
+      <li>Receiver confirms delivery → status closed.</li>
+    </ol>
+  </div>
+
+<div id="parcel-registration" class="tab-content">
+  <h2>1. Parcel Registration</h2>
+  <p>When a new parcel is sent, the following details are recorded:</p>
+  <ul>
+    <li><strong>Parcel ID</strong> – Unique tracking number (e.g., <code>CP12345</code>).</li>
+    <li><strong>Sender Details</strong> – Name, address, contact info.</li>
+    <li><strong>Receiver Details</strong> – Name, address, contact info.</li>
+    <li><strong>Weight & Dimensions</strong> – For pricing and logistics.</li>
+    <li><strong>Current Status</strong> – Initially set to <code>Registered</code>.</li>
+  </ul>
+  <p>Stored in <code>parcels.json</code>, linked to sender/receiver in <code>customers.json</code>.</p>
+</div>
+
+<div id="status-update" class="tab-content">
+  <h2>2. Status Update</h2>
+  <p>As the parcel moves, the status is updated to reflect its journey:</p>
+  <ul>
+    <li><code>In Transit</code> – Parcel is on the way.</li>
+    <li><code>Out for Delivery</code> – Parcel is with delivery staff.</li>
+    <li><code>Delivered</code> – Parcel has reached the receiver.</li>
+    <li><code>Delayed</code> – Unexpected delay reported.</li>
+  </ul>
+  <p>These updates are made in <code>parcels.json</code> so tracking is always accurate.</p>
+</div>
+
+<div id="delivery-confirmation" class="tab-content">
+  <h2>3. Delivery Confirmation</h2>
+  <p>When the receiver gets the parcel:</p>
+  <ol>
+    <li>Delivery staff marks the parcel as <code>Delivered</code>.</li>
+    <li>Optionally captures the receiver's signature or photo.</li>
+    <li>The delivery date and time are recorded.</li>
+  </ol>
+</div>
+
+<div id="parcel-search" class="tab-content">
+  <h2>4. Parcel Search by ID</h2>
+  <p>Anyone can track a parcel by entering its tracking ID:</p>
+  <ol>
+    <li>The system looks up <code>parcels.json</code> for a match.</li>
+    <li>Displays current status, sender, and receiver info.</li>
+    <li>Shows full journey history if available.</li>
+  </ol>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>JSON File Structures</h2>
+
+  <p><strong>parcels.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "parcel_id": "CP12345",
+    "sender_id": 1,
+    "receiver_id": 2,
+    "weight": "2kg",
+    "dimensions": "30x20x10cm",
+    "status": "In Transit",
+    "history": [
+      {"date": "2025-08-10", "status": "Registered"},
+      {"date": "2025-08-11", "status": "In Transit"}
+    ]
+  }
+]
+  </div>
+
+  <p><strong>customers.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "customer_id": 1,
+    "name": "Shivam Bansal",
+    "address": "Delhi, India",
+    "phone": "+91-9876543210"
+  },
+  {
+    "customer_id": 2,
+    "name": "Mohini Bansal",
+    "address": "Mumbai, India",
+    "phone": "+91-9123456780"
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Courier & Parcel Tracking – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

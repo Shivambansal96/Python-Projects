@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Library Membership & Book Issue System - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #3f51b5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .tab-buttons button {
+      background-color: #3f51b5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+    .tab-buttons button:hover {
+      background-color: #3949ab;
+    }
+    .tab-buttons button.active {
+      background-color: #283593;
+    }
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    h2 {
+      color: #3f51b5;
+    }
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Library Membership & Book Issue System</h1>
+  <p>Manage members, books, borrowing, and returns</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('book-management')">Book Management</button>
+  <button onclick="showTab('member-registration')">Member Registration</button>
+  <button onclick="showTab('borrow-return')">Borrow & Return</button>
+  <button onclick="showTab('reports')">Reports</button>
+  <button onclick="showTab('files')">JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This system helps manage library books, track memberships, handle borrowing & returning, and generate reports.</p>
+  <ol>
+    <li>Register new members with personal details.</li>
+    <li>Add and manage book inventory.</li>
+    <li>Issue books to members with due dates.</li>
+    <li>Record returns and update availability.</li>
+    <li>Generate reports of borrowed and returned books.</li>
+  </ol>
+  <p>Data is stored in <code>books.json</code>, <code>members.json</code>, and <code>borrowHistory.json</code>.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Manage library members, books, and borrowing with due date tracking.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Book</code> – title, author, ISBN, availability.</li>
+      <li><code>Member</code> – member ID, name, contact info, borrowed books list.</li>
+      <li><code>Library</code> – manages collections of books and members.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ol>
+      <li>Add/remove books from the library.</li>
+      <li>Register members.</li>
+      <li>Borrow/return books (update availability).</li>
+    </ol>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Admin adds “Data Structures in Python” to library.</li>
+      <li>Student A registers as a member.</li>
+      <li>Student A borrows the book → status updated to “unavailable”.</li>
+      <li>After 10 days (due was 7 days), fine is calculated.</li>
+    </ol>
+  </div>
+
+<div id="book-management" class="tab-content">
+  <h2>1. Book Management</h2>
+  <p>When adding new books, record the following:</p>
+  <ul>
+    <li><strong>Book Title</strong> – Name of the book.</li>
+    <li><strong>Author</strong> – Author's name.</li>
+    <li><strong>Availability</strong> – Available or borrowed.</li>
+  </ul>
+  <p>Saved in <code>books.json</code> for tracking inventory.</p>
+</div>
+
+<div id="member-registration" class="tab-content">
+  <h2>2. Member Registration</h2>
+  <p>When a new member joins, record the following:</p>
+  <ul>
+    <li><strong>Member ID</strong> – Unique identifier (e.g., <code>LIB101</code>).</li>
+    <li><strong>Name</strong> – Full name of the member.</li>
+    <li><strong>Contact Info</strong> – Phone and/or email.</li>
+  </ul>
+  <p>Stored in <code>members.json</code> for library records.</p>
+</div>
+
+<div id="borrow-return" class="tab-content">
+  <h2>3. Borrow & Return</h2>
+  <p>Borrow process:</p>
+  <ol>
+    <li>Select available book and member.</li>
+    <li>Set due date.</li>
+    <li>Mark as borrowed in <code>borrowHistory.json</code>.</li>
+  </ol>
+  <p>Return process:</p>
+  <ol>
+    <li>Find matching borrow record.</li>
+    <li>Mark as returned and update availability.</li>
+  </ol>
+</div>
+
+<div id="reports" class="tab-content">
+  <h2>4. Reports</h2>
+  <p>Generate reports for:</p>
+  <ul>
+    <li>All currently borrowed books.</li>
+    <li>Overdue books.</li>
+    <li>Borrow history per member.</li>
+  </ul>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>JSON File Structures</h2>
+
+  <p><strong>books.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "available": true
+  }
+]
+  </div>
+
+  <p><strong>members.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "member_id": "LIB101",
+    "name": "Anita Verma",
+    "contact": "anita@example.com"
+  }
+]
+  </div>
+
+  <p><strong>borrowHistory.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "memberName": "Anita Verma",
+    "bookTitle": "The Great Gatsby",
+    "dueDate": "2025-08-20",
+    "returned": false
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Library Membership & Book Issue System – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

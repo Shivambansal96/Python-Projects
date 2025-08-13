@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Quiz Application - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-buttons button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    .tab-buttons button:hover {
+      background-color: #3e8e41;
+    }
+
+    .tab-buttons button.active {
+      background-color: #2e7031;
+    }
+
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      color: #4CAF50;
+    }
+
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Online Quiz Application</h1>
+  <p>A complete walkthrough of how this system works</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('question-bank')">Question Bank Management</button>
+  <button onclick="showTab('quiz-taking')">Quiz Taking</button>
+  <button onclick="showTab('score-calculation')">Score Calculation</button>
+  <button onclick="showTab('result-storage')">Result Storage</button>
+  <button onclick="showTab('files')">JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This application allows users to take quizzes online. Here's the process in simple terms:</p>
+  <ol>
+    <li>Admin adds questions to the question bank.</li>
+    <li>Users take the quiz by answering questions from the bank.</li>
+    <li>The system calculates their score automatically.</li>
+    <li>The score and results are stored for future reference.</li>
+  </ol>
+  <p>Two main data files power this app: <code>questions.json</code> and <code>results.json</code>.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Conduct multiple-choice quizzes and calculate results.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Question</code> – question text, options (list), correct answer.</li>
+      <li><code>Quiz</code> – manages list of questions and scoring system.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ol>
+      <li>Add questions to the quiz bank.</li>
+      <li>Conduct quiz (show questions, take answers).</li>
+      <li>Calculate and display final score.</li>
+    </ol>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Add Q: “Which is a Python data type? (A: list, B: table, C: chart)” → Correct: A.</li>
+      <li>User attempts quiz → answers stored.</li>
+      <li>Score shown: “You got 4/5 correct.”</li>
+      <li>Result saved in <code>results.json</code>.</li>
+    </ol>
+  </div>
+
+<div id="question-bank" class="tab-content">
+  <h2>1. Question Bank Management</h2>
+  <p>This module stores all quiz questions and allows adding, editing, or deleting them.</p>
+  <ul>
+    <li><strong>Question Text</strong> – e.g., <code>What is the capital of France?</code></li>
+    <li><strong>Options</strong> – Multiple choice answers.</li>
+    <li><strong>Correct Answer</strong> – Used for score calculation.</li>
+    <li><strong>Category</strong> – e.g., General Knowledge, Science, etc.</li>
+  </ul>
+  <p>All questions are stored in <code>questions.json</code>.</p>
+</div>
+
+<div id="quiz-taking" class="tab-content">
+  <h2>2. Quiz Taking</h2>
+  <p>When a user takes a quiz:</p>
+  <ol>
+    <li>The system loads questions from <code>questions.json</code>.</li>
+    <li>Questions are displayed one by one or all at once.</li>
+    <li>User selects their answers.</li>
+    <li>Navigation controls like <em>Next</em> and <em>Previous</em> may be provided.</li>
+    <li>A timer can be used for time-bound quizzes.</li>
+  </ol>
+</div>
+
+<div id="score-calculation" class="tab-content">
+  <h2>3. Score Calculation</h2>
+  <p>When the quiz is submitted:</p>
+  <ol>
+    <li>The system compares the user's answers with correct answers from <code>questions.json</code>.</li>
+    <li>Each correct answer increases the score.</li>
+    <li>The final score is displayed instantly.</li>
+  </ol>
+</div>
+
+<div id="result-storage" class="tab-content">
+  <h2>4. Result Storage</h2>
+  <p>After score calculation:</p>
+  <ol>
+    <li>User's name, score, and quiz date are recorded.</li>
+    <li>This data is saved in <code>results.json</code>.</li>
+    <li>Stored results can be used to track progress over time.</li>
+  </ol>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>JSON File Structures</h2>
+
+  <p><strong>questions.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "question": "What is the capital of France?",
+    "options": ["Paris", "London", "Berlin", "Rome"],
+    "answer": "Paris",
+    "category": "General Knowledge"
+  }
+]
+  </div>
+
+  <p><strong>results.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "username": "Shivam Bansal",
+    "score": 8,
+    "date": "2025-08-13"
+  },
+  {
+    "username": "Mohini Bansal",
+    "score": 6,
+    "date": "2025-08-13"
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Online Quiz Application – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

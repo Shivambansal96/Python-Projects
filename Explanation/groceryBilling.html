@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grocery Shop Billing System - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .tab-buttons button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+    .tab-buttons button:hover {
+      background-color: #43a047;
+    }
+    .tab-buttons button.active {
+      background-color: #2e7d32;
+    }
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    h2 {
+      color: #4caf50;
+    }
+    code {
+      background-color: #e8f5e9;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Grocery Shop Billing System</h1>
+  <p>Manage inventory, generate bills, apply discounts, and store purchase history</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('inventory')">Inventory Management</button>
+  <button onclick="showTab('billing')">Billing</button>
+  <button onclick="showTab('discount')">Discount Module</button>
+  <button onclick="showTab('reports')">Reports</button>
+  <button onclick="showTab('files')">CSV/JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This system helps grocery shops manage their inventory, create bills for customers, apply discounts, and maintain sales records.</p>
+  <ol>
+    <li>Add or update products in inventory.</li>
+    <li>Generate bills for customer purchases.</li>
+    <li>Apply discounts on eligible products.</li>
+    <li>View daily sales summaries.</li>
+  </ol>
+  <p>Data is stored in <code>inventory.csv</code> for products and <code>transactions.json</code> for sales.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Manage shop inventory and billing.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Product</code> – name, price, stock.</li>
+      <li><code>Bill</code> – purchased products, total.</li>
+      <li><code>Inventory</code> – manages product stock.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ul>
+      <li>Add/update products.</li>
+      <li>Add items to cart and calculate total.</li>
+      <li>Apply discounts.</li>
+    </ul>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Add “Rice” – ₹50/kg, stock 20kg.</li>
+      <li>Customer buys 2kg → ₹100.</li>
+      <li>Stock reduces to 18kg.</li>
+    </ol>
+  </div>
+
+<div id="inventory" class="tab-content">
+  <h2>1. Inventory Management</h2>
+  <p>Manage products with details such as:</p>
+  <ul>
+    <li><strong>Product ID</strong> – Unique identifier (e.g., <code>PR001</code>).</li>
+    <li><strong>Name</strong> – Product name.</li>
+    <li><strong>Price</strong> – Price per unit.</li>
+    <li><strong>Stock</strong> – Quantity available.</li>
+  </ul>
+  <p>Stored in <code>inventory.csv</code>.</p>
+</div>
+
+<div id="billing" class="tab-content">
+  <h2>2. Billing</h2>
+  <p>Billing process:</p>
+  <ol>
+    <li>Add items to cart.</li>
+    <li>Calculate total cost.</li>
+    <li>Generate final bill with breakdown.</li>
+  </ol>
+  <p>Bill details are recorded in <code>transactions.json</code>.</p>
+</div>
+
+<div id="discount" class="tab-content">
+  <h2>3. Discount Module</h2>
+  <p>Discount features include:</p>
+  <ul>
+    <li>Apply product-specific offers.</li>
+    <li>Percentage-based or flat-rate discounts.</li>
+    <li>Automatic discount calculation in billing.</li>
+  </ul>
+</div>
+
+<div id="reports" class="tab-content">
+  <h2>4. Reports</h2>
+  <p>Generate reports for:</p>
+  <ul>
+    <li>Total sales for the day.</li>
+    <li>Top-selling products.</li>
+    <li>Total revenue generated.</li>
+  </ul>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>File Structures</h2>
+
+  <p><strong>inventory.csv</strong></p>
+  <div class="json-box">
+product_id,name,price,stock
+PR001,Rice,50,100
+PR002,Milk,25,50
+  </div>
+
+  <p><strong>transactions.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "transaction_id": "T001",
+    "items": [
+      {"product": "Rice", "quantity": 2, "price": 100},
+      {"product": "Milk", "quantity": 1, "price": 25}
+    ],
+    "total": 125,
+    "date": "2025-08-13"
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Grocery Shop Billing System – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

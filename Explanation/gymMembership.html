@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gym Membership Management - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-buttons button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    .tab-buttons button:hover {
+      background-color: #43a047;
+    }
+
+    .tab-buttons button.active {
+      background-color: #388e3c;
+    }
+
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      color: #4caf50;
+    }
+
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Gym Membership Management</h1>
+  <p>Track members, fees, attendance, and trainer assignments</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('member-registration')">Member Registration</button>
+  <button onclick="showTab('fee-tracking')">Fee Tracking</button>
+  <button onclick="showTab('attendance-recording')">Attendance Recording</button>
+  <button onclick="showTab('trainer-assignment')">Trainer Assignment</button>
+  <button onclick="showTab('files')">JSON Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This system manages gym members, monitors their fee payments, tracks attendance, and assigns trainers. Here's the workflow:</p>
+  <ol>
+    <li>Register new members with personal details and membership plan.</li>
+    <li>Record and track payment status for each member.</li>
+    <li>Log daily attendance for performance and usage tracking.</li>
+    <li>Assign trainers to members for guided workouts.</li>
+  </ol>
+  <p>Data is stored in <code>members.json</code> and <code>attendance.json</code>.</p>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>Track gym members, fees, attendance, and trainer assignments.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Member</code> – name, age, membership type, contact details.</li>
+      <li><code>Trainer</code> – name, specialization (e.g., cardio, weights).</li>
+      <li><code>Gym</code> – manages members, trainers, and attendance.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ol>
+      <li>Register members with chosen membership type.</li>
+      <li>Assign trainers to members.</li>
+      <li>Record daily attendance of members.</li>
+    </ol>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>John registers for a 3-month membership.</li>
+      <li>Trainer “Alice – Yoga Specialist” is assigned to him.</li>
+      <li>Attendance marked daily.</li>
+      <li>After 10 days of absence → John appears in “Inactive Members” list.</li>
+    </ol>
+  </div>
+
+<div id="member-registration" class="tab-content">
+  <h2>1. Member Registration</h2>
+  <p>When a new member joins, record the following:</p>
+  <ul>
+    <li><strong>Member ID</strong> – Unique identifier (e.g., <code>GM101</code>).</li>
+    <li><strong>Name & Contact Info</strong> – Address, phone number, email.</li>
+    <li><strong>Membership Type</strong> – Monthly, quarterly, yearly.</li>
+    <li><strong>Start Date & Expiry Date</strong> – For membership validity.</li>
+  </ul>
+  <p>Saved in <code>members.json</code> for future reference.</p>
+</div>
+
+<div id="fee-tracking" class="tab-content">
+  <h2>2. Fee Tracking</h2>
+  <p>Track each member’s fee status:</p>
+  <ul>
+    <li><strong>Paid</strong> – Member has cleared payment for the current period.</li>
+    <li><strong>Pending</strong> – Payment due soon.</li>
+    <li><strong>Overdue</strong> – Payment date has passed.</li>
+  </ul>
+  <p>Helps maintain financial stability and ensure timely payments.</p>
+</div>
+
+<div id="attendance-recording" class="tab-content">
+  <h2>3. Attendance Recording</h2>
+  <p>Mark attendance daily:</p>
+  <ol>
+    <li>Member scans ID or is marked manually by staff.</li>
+    <li>Log includes date and time of entry.</li>
+    <li>Data is saved in <code>attendance.json</code>.</li>
+  </ol>
+</div>
+
+<div id="trainer-assignment" class="tab-content">
+  <h2>4. Trainer-Member Assignment</h2>
+  <p>Assign specific trainers to members for personalized plans:</p>
+  <ul>
+    <li>Each trainer can manage multiple members.</li>
+    <li>Assignments can be updated based on schedules or goals.</li>
+  </ul>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>JSON File Structures</h2>
+
+  <p><strong>members.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "member_id": "GM101",
+    "name": "Rahul Sharma",
+    "contact": "rahul@example.com",
+    "phone": "+91-9876543210",
+    "membership_type": "Yearly",
+    "start_date": "2025-01-01",
+    "expiry_date": "2025-12-31",
+    "fee_status": "Paid"
+  }
+]
+  </div>
+
+  <p><strong>attendance.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "member_id": "GM101",
+    "date": "2025-08-12",
+    "time": "07:45 AM"
+  },
+  {
+    "member_id": "GM101",
+    "date": "2025-08-13",
+    "time": "07:50 AM"
+  }
+]
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Gym Membership Management – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

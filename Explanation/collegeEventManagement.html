@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>College Event Registration System - Project Flow</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #00796b;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .tab-buttons button {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+    .tab-buttons button:hover {
+      background-color: #00695c;
+    }
+    .tab-buttons button.active {
+      background-color: #004d40;
+    }
+    .tab-content {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    h2 {
+      color: #00796b;
+    }
+    code {
+      background-color: #e0f2f1;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .json-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>College Event Registration System</h1>
+  <p>Manage events, participants, and reports for a college fest</p>
+</header>
+
+<div class="tab-buttons">
+  <button onclick="showTab('overview')" class="active">Overview</button>
+    <button onclick="showTab('detailed-spec')">Detailed Spec</button>
+  <button onclick="showTab('event-management')">Event Management</button>
+  <button onclick="showTab('participant-registration')">Participant Registration</button>
+  <button onclick="showTab('file-storage')">File Storage</button>
+  <button onclick="showTab('search-reporting')">Search & Reporting</button>
+  <button onclick="showTab('files')">JSON/CSV Files</button>
+</div>
+
+<div id="overview" class="tab-content active">
+  <h2>Overview</h2>
+  <p>This system is designed to handle multiple events in a college fest, from managing event details to registering participants and generating reports.</p>
+  <ol>
+    <li>Create and manage events with details such as date and venue.</li>
+    <li>Register participants for one or more events.</li>
+    <li>Store data securely in JSON or CSV files.</li>
+    <li>Search participants by event name.</li>
+    <li>Generate summary reports for each event.</li>
+  </ol>
+</div>
+
+  <div id="detailed-spec" class="tab-content">
+    <h2>Detailed Specification</h2>
+    <h3>Objective</h3>
+    <p>A system to manage college fest events, register participants, and track registrations.</p>
+
+    <h3>Core Classes</h3>
+    <ul>
+      <li><code>Event</code> – event name, description, date, capacity, registered participants list.</li>
+      <li><code>Participant</code> – name, roll number, department, registered events list.</li>
+      <li><code>EventManager</code> – manages event creation, deletion, participant registration.</li>
+    </ul>
+
+    <h3>Core Features</h3>
+    <ul>
+      <li>Add, update, delete events.</li>
+      <li>Register participants for events.</li>
+      <li>Prevent registration if the event is full.</li>
+      <li>Search for participants by event name.</li>
+    </ul>
+
+    <h3>Example Flow</h3>
+    <ol>
+      <li>Admin adds <em>“Coding Contest”</em>, capacity 30.</li>
+      <li>Student registers for <em>“Coding Contest”</em>.</li>
+      <li>System checks availability → confirms registration.</li>
+      <li>Admin searches <em>“Coding Contest”</em> → sees participant list.</li>
+    </ol>
+  </div>
+
+<div id="event-management" class="tab-content">
+  <h2>1. Event Management</h2>
+  <p>Using the <code>Event</code> class, you can:</p>
+  <ul>
+    <li>Add new events with an Event ID, name, date, and venue.</li>
+    <li>Update existing event details.</li>
+    <li>Delete events if needed.</li>
+  </ul>
+  <p>All events are stored in <code>events.json</code> or <code>events.csv</code>.</p>
+</div>
+
+<div id="participant-registration" class="tab-content">
+  <h2>2. Participant Registration</h2>
+  <p>Using the <code>Participant</code> class, you can:</p>
+  <ul>
+    <li>Register students with name, department, and event participation.</li>
+    <li>Assign a unique Participant ID.</li>
+    <li>Allow a participant to register for multiple events.</li>
+  </ul>
+  <p>Participant details are stored in <code>participants.json</code> or <code>participants.csv</code>.</p>
+</div>
+
+<div id="file-storage" class="tab-content">
+  <h2>3. File Storage</h2>
+  <p>Two storage formats can be used:</p>
+  <ul>
+    <li><strong>JSON</strong> – Easy for storing and retrieving structured data.</li>
+    <li><strong>CSV</strong> – Easy for spreadsheet viewing and sharing.</li>
+  </ul>
+</div>
+
+<div id="search-reporting" class="tab-content">
+  <h2>4. Search & Reporting</h2>
+  <p>Features include:</p>
+  <ul>
+    <li>Search participants by event name or ID.</li>
+    <li>Generate reports showing all participants for an event.</li>
+    <li>Count the number of participants per event.</li>
+  </ul>
+</div>
+
+<div id="files" class="tab-content">
+  <h2>Sample File Structures</h2>
+
+  <p><strong>events.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "event_id": "EV001",
+    "name": "Tech Quiz",
+    "date": "2025-09-15",
+    "venue": "Auditorium"
+  }
+]
+  </div>
+
+  <p><strong>participants.json</strong></p>
+  <div class="json-box">
+[
+  {
+    "participant_id": "P001",
+    "name": "Shivam Bansal",
+    "department": "Commerce",
+    "event_id": "EV001"
+  }
+]
+  </div>
+
+  <p><strong>participants.csv</strong></p>
+  <div class="json-box">
+participant_id,name,department,event_id
+P001,Ravi Kumar,Computer Science,EV001
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 College Event Registration System – Built for learning purposes
+</footer>
+
+<script>
+  function showTab(id) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-buttons button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

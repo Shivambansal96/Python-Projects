@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Membership & Book Issue System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 5px 0 3px;
+        }
+        input, button, select {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Library Membership & Book Issue System</h2>
+
+    <!-- Book Management -->
+    <div class="section">
+        <h3>Add New Book</h3>
+        <label>Book Title:</label>
+        <input type="text" id="bookTitle">
+        <label>Author:</label>
+        <input type="text" id="bookAuthor">
+        <button onclick="addBook()">Add Book</button>
+        <div id="bookList"></div>
+    </div>
+
+    <!-- Member Registration -->
+    <div class="section">
+        <h3>Add New Member</h3>
+        <label>Member Name:</label>
+        <input type="text" id="memberName">
+        <button onclick="addMember()">Register Member</button>
+        <div id="memberList"></div>
+    </div>
+
+    <!-- Borrow & Return -->
+    <div class="section">
+        <h3>Borrow Book</h3>
+        <label>Select Member:</label>
+        <select id="borrowMember"></select>
+        <label>Select Book:</label>
+        <select id="borrowBook"></select>
+        <label>Due Date:</label>
+        <input type="date" id="dueDate">
+        <button onclick="borrowBook()">Borrow</button>
+
+        <h3>Return Book</h3>
+        <label>Member Name:</label>
+        <input type="text" id="returnMember">
+        <label>Book Title:</label>
+        <input type="text" id="returnBook">
+        <button onclick="returnBook()">Return</button>
+    </div>
+
+    <!-- Reports -->
+    <div class="section">
+        <h3>Borrowed Books Report</h3>
+        <div id="borrowReport"></div>
+    </div>
+
+    <script>
+        let books = JSON.parse(localStorage.getItem("books")) || [];
+        let members = JSON.parse(localStorage.getItem("members")) || [];
+        let borrowHistory = JSON.parse(localStorage.getItem("borrowHistory")) || [];
+
+        function saveData() {
+            localStorage.setItem("books", JSON.stringify(books));
+            localStorage.setItem("members", JSON.stringify(members));
+            localStorage.setItem("borrowHistory", JSON.stringify(borrowHistory));
+        }
+
+        function addBook() {
+            const title = document.getElementById("bookTitle").value.trim();
+            const author = document.getElementById("bookAuthor").value.trim();
+            if (title && author) {
+                books.push({ title, author, available: true });
+                saveData();
+                document.getElementById("bookTitle").value = "";
+                document.getElementById("bookAuthor").value = "";
+                displayBooks();
+                populateBookDropdown();
+            }
+        }
+
+        function addMember() {
+            const name = document.getElementById("memberName").value.trim();
+            if (name) {
+                members.push({ name });
+                saveData();
+                document.getElementById("memberName").value = "";
+                displayMembers();
+                populateMemberDropdown();
+            }
+        }
+
+        function borrowBook() {
+            const memberName = document.getElementById("borrowMember").value;
+            const bookTitle = document.getElementById("borrowBook").value;
+            const dueDate = document.getElementById("dueDate").value;
+
+            let book = books.find(b => b.title === bookTitle && b.available);
+            if (book) {
+                book.available = false;
+                borrowHistory.push({ memberName, bookTitle, dueDate, returned: false });
+                saveData();
+                displayBooks();
+                displayReport();
+                populateBookDropdown();
+            } else {
+                alert("Book not available!");
+            }
+        }
+
+        function returnBook() {
+            const memberName = document.getElementById("returnMember").value.trim();
+            const bookTitle = document.getElementById("returnBook").value.trim();
+
+            let borrowRecord = borrowHistory.find(r => r.memberName === memberName && r.bookTitle === bookTitle && !r.returned);
+            if (borrowRecord) {
+                borrowRecord.returned = true;
+                let book = books.find(b => b.title === bookTitle);
+                if (book) book.available = true;
+                saveData();
+                displayBooks();
+                displayReport();
+                populateBookDropdown();
+            } else {
+                alert("No such borrowed book found.");
+            }
+        }
+
+        function displayBooks() {
+            let html = "<table><tr><th>Title</th><th>Author</th><th>Status</th></tr>";
+            books.forEach(b => {
+                html += `<tr><td>${b.title}</td><td>${b.author}</td><td>${b.available ? "Available" : "Borrowed"}</td></tr>`;
+            });
+            html += "</table>";
+            document.getElementById("bookList").innerHTML = html;
+        }
+
+        function displayMembers() {
+            let html = "<table><tr><th>Member Name</th></tr>";
+            members.forEach(m => {
+                html += `<tr><td>${m.name}</td></tr>`;
+            });
+            html += "</table>";
+            document.getElementById("memberList").innerHTML = html;
+        }
+
+        function displayReport() {
+            let html = "<table><tr><th>Member</th><th>Book</th><th>Due Date</th><th>Status</th></tr>";
+            borrowHistory.forEach(r => {
+                html += `<tr><td>${r.memberName}</td><td>${r.bookTitle}</td><td>${r.dueDate}</td><td>${r.returned ? "Returned" : "Not Returned"}</td></tr>`;
+            });
+            html += "</table>";
+            document.getElementById("borrowReport").innerHTML = html;
+        }
+
+        function populateMemberDropdown() {
+            const select = document.getElementById("borrowMember");
+            select.innerHTML = "";
+            members.forEach(m => {
+                let option = document.createElement("option");
+                option.value = m.name;
+                option.textContent = m.name;
+                select.appendChild(option);
+            });
+        }
+
+        function populateBookDropdown() {
+            const select = document.getElementById("borrowBook");
+            select.innerHTML = "";
+            books.filter(b => b.available).forEach(b => {
+                let option = document.createElement("option");
+                option.value = b.title;
+                option.textContent = b.title;
+                select.appendChild(option);
+            });
+        }
+
+        // Initial Load
+        displayBooks();
+        displayMembers();
+        displayReport();
+        populateMemberDropdown();
+        populateBookDropdown();
+    </script>
+
+</body>
+</html>

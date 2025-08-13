@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grocery Shop Billing System</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#22a06b;
+      --primary-dark:#178257;
+      --danger:#dc2626;
+      --warn:#d97706;
+      --ring:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.4;
+    }
+    header{
+      background:linear-gradient(135deg,#1fb978, #138450);
+      color:#fff;
+      padding:22px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    header h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
+    header p{margin:0;opacity:.9}
+
+    .container{
+      max-width:1100px;
+      margin:24px auto;
+      padding:0 16px;
+      display:grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap:20px;
+    }
+    @media (max-width: 980px){ .container{ grid-template-columns: 1fr; } }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--ring);
+      border-radius:14px;
+      padding:16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    .card h2{
+      margin:0 0 12px;
+      font-size:20px;
+    }
+    .sub{color:var(--muted); font-size:13px; margin-top:-6px; margin-bottom:10px;}
+
+    .row{display:grid; grid-template-columns: repeat(12,1fr); gap:10px; align-items:end;}
+    .row > *{grid-column: span 3;}
+    .row .wide{grid-column: span 6;}
+    .row .xs{grid-column: span 2;}
+    @media (max-width:700px){ .row > *{grid-column: span 12;} }
+
+    input, select, button, textarea{
+      font: inherit;
+    }
+    input[type="number"]{ -moz-appearance: textfield; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{ -webkit-appearance: none; margin:0; }
+
+    .input{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .input label{font-size:13px; color:var(--muted)}
+    .input input, .input select, .input textarea{
+      border:1px solid var(--ring);
+      border-radius:10px;
+      padding:10px 12px;
+      background:#fff;
+      transition:.15s border-color ease;
+      outline:none;
+    }
+    .input input:focus, .input select:focus{ border-color:#b7e6d0; box-shadow: 0 0 0 3px rgba(34,160,107,.15); }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:10px;
+      border:1px solid transparent;
+      background:var(--primary);
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:.15s transform ease, .15s background ease;
+    }
+    .btn:hover{ background:var(--primary-dark); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.secondary{ background:#ffffff; color:var(--text); border-color:var(--ring); }
+    .btn.danger{ background:var(--danger); }
+    .btn.warn{ background:var(--warn); }
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top:10px;
+    }
+    th, td{
+      border-bottom:1px solid var(--ring);
+      text-align:left;
+      padding:10px 8px;
+      font-size:14px;
+    }
+    th{ color:#374151; background:#fafafa; position:sticky; top:0; z-index:1; }
+    tbody tr:hover{ background:#fafdfb; }
+    .qty-input{ width:80px; text-align:center; }
+
+    .right{ text-align:right; }
+    .muted{ color:var(--muted); }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid var(--ring);
+      background:#f9fafb;
+    }
+
+    .totals{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:6px 16px;
+      align-items:center;
+      max-width:520px;
+      margin-left:auto;
+    }
+    .totals .label{color:var(--muted)}
+    .totals .value{font-weight:700; text-align:right}
+
+    .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
+    @media (max-width:900px){ .grid-2{ grid-template-columns: 1fr; } }
+
+    dialog{
+      border: none;
+      border-radius: 14px;
+      max-width: 520px;
+      width: calc(100% - 24px);
+      padding: 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+    dialog::backdrop{ background: rgba(0,0,0,.25); }
+    .modal-head{ padding:14px 16px; border-bottom:1px solid var(--ring); font-weight:700}
+    .modal-body{ padding:14px 16px; }
+    .modal-foot{ padding:12px 16px; border-top:1px solid var(--ring); display:flex; gap:8px; justify-content:flex-end }
+
+    .hint{font-size:12px;color:var(--muted)}
+    .pill{display:inline-flex; gap:6px; align-items:center; padding:4px 8px; border:1px dashed #cfeadf; background:#f4fbf7; border-radius:999px; font-size:12px;}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Grocery Shop Billing System</h1>
+  <p>Inventory, Billing, Discounts (deducted from bill), and Sales Reports — all in your browser.</p>
+</header>
+
+<div class="container">
+
+  <!-- Left column: Inventory & Reports -->
+  <div class="grid-2">
+
+    <!-- Inventory Card -->
+    <section class="card">
+      <h2>Inventory</h2>
+      <p class="sub">Add/update products, unit price, available stock, and optional product-level discount (%)</p>
+
+      <div class="row" style="margin-bottom:10px">
+        <div class="input wide">
+          <label for="pName">Product name</label>
+          <input id="pName" placeholder="e.g., Basmati Rice 1kg">
+        </div>
+        <div class="input">
+          <label for="pPrice">Unit price (₹)</label>
+          <input id="pPrice" type="number" min="0" step="0.01" placeholder="e.g., 120">
+        </div>
+        <div class="input">
+          <label for="pStock">Stock</label>
+          <input id="pStock" type="number" min="0" step="1" placeholder="e.g., 50">
+        </div>
+        <div class="input xs">
+          <label for="pDisc">Discount %</label>
+          <input id="pDisc" type="number" min="0" max="100" step="1" placeholder="0">
+        </div>
+        <div class="input xs">
+          <label>&nbsp;</label>
+          <button class="btn" id="btnAddProduct">Save Product</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn secondary" id="btnExportCSV">Export Inventory CSV</button>
+        <label class="btn secondary" for="importCSV">Import CSV</label>
+        <input id="importCSV" type="file" accept=".csv" style="display:none">
+      </div>
+
+      <table id="invTable">
+        <thead>
+          <tr>
+            <th style="width:34%">Product</th>
+            <th class="right" style="width:12%">Price (₹)</th>
+            <th class="right" style="width:12%">Stock</th>
+            <th class="right" style="width:14%">Discount %</th>
+            <th style="width:28%">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Reports Card -->
+    <section class="card">
+      <h2>Sales Reports</h2>
+      <p class="sub">A new transaction is saved on checkout. Export/import the history below.</p>
+
+      <div class="toolbar" style="margin-bottom:8px">
+        <button class="btn secondary" id="btnExportJSON">Export Transactions JSON</button>
+        <label class="btn secondary" for="importJSON">Import JSON</label>
+        <input id="importJSON" type="file" accept=".json" style="display:none">
+      </div>
+
+      <table id="repTable">
+        <thead>
+          <tr>
+            <th>Date/Time</th>
+            <th class="right">Items</th>
+            <th class="right">Subtotal (₹)</th>
+            <th class="right">Discount (₹)</th>
+            <th class="right">Total (₹)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="totals" style="margin-top:18px">
+        <div class="label">Today’s Sales</div>
+        <div class="value" id="todaySales">₹0.00</div>
+        <div class="label">Today’s Orders</div>
+        <div class="value" id="todayOrders">0</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Right column: Billing -->
+  <section class="card" style="grid-column: 1 / -1">
+    <h2>Billing</h2>
+    <p class="sub">Add items to cart, change quantities, and checkout. <span class="pill">Discount is auto-deducted from bill</span></p>
+
+    <div class="row" style="margin-bottom:10px">
+      <div class="input wide">
+        <label for="selProduct">Select product</label>
+        <select id="selProduct"></select>
+      </div>
+      <div class="input xs">
+        <label for="qty">Qty</label>
+        <input id="qty" type="number" min="1" step="1" placeholder="1" value="1">
+      </div>
+      <div class="input xs">
+        <label>&nbsp;</label>
+        <button class="btn" id="btnAddToCart">Add to Cart</button>
+      </div>
+      <div class="input xs">
+        <label for="extraDiscount">Cart Discount %</label>
+        <input id="extraDiscount" type="number" min="0" max="100" step="1" placeholder="0" value="0">
+        <div class="hint">Optional cart-level promo</div>
+      </div>
+    </div>
+
+    <table id="cartTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th class="right">Unit (₹)</th>
+          <th class="right">Prod Disc %</th>
+          <th class="right">Qty</th>
+          <th class="right">Line Subtotal (₹)</th>
+          <th class="right">Line Discount (₹)</th>
+          <th class="right">Line Total (₹)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="totals">
+      <div class="label">Cart Subtotal</div>
+      <div class="value" id="tSubtotal">₹0.00</div>
+      <div class="label">Product Discounts</div>
+      <div class="value" id="tProdDisc">− ₹0.00</div>
+      <div class="label">Extra Cart Discount</div>
+      <div class="value" id="tCartDisc">− ₹0.00</div>
+      <div class="label">Grand Total</div>
+      <div class="value" id="tGrand">₹0.00</div>
+    </div>
+
+    <div class="toolbar" style="margin-top:14px; justify-content:flex-end">
+      <button class="btn secondary" id="btnClearCart">Clear Cart</button>
+      <button class="btn" id="btnCheckout">Checkout</button>
+    </div>
+  </section>
+</div>
+
+<!-- Edit Product Modal -->
+<dialog id="editModal">
+  <div class="modal-head">Edit Product</div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="input wide">
+        <label for="mName">Product name</label>
+        <input id="mName">
+      </div>
+      <div class="input">
+        <label for="mPrice">Unit price (₹)</label>
+        <input id="mPrice" type="number" min="0" step="0.01">
+      </div>
+      <div class="input">
+        <label for="mStock">Stock</label>
+        <input id="mStock" type="number" min="0" step="1">
+      </div>
+      <div class="input xs">
+        <label for="mDisc">Discount %</label>
+        <input id="mDisc" type="number" min="0" max="100" step="1">
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn secondary" onclick="editModal.close()">Cancel</button>
+    <button class="btn" id="mSave">Save</button>
+  </div>
+</dialog>
+
+<script>
+  /***************
+   * In-memory data
+   ***************/
+  let inventory = [
+    {id: genId(), name: "Rice 1kg", price: 65, stock: 40, discountPct: 0},
+    {id: genId(), name: "Sugar 1kg", price: 45, stock: 30, discountPct: 5},
+    {id: genId(), name: "Sunflower Oil 1L", price: 140, stock: 25, discountPct: 0},
+  ];
+  let cart = []; // {id, name, price, qty, discountPct}
+  let transactions = []; // history
+
+  // UI refs
+  const invTableBody = document.querySelector("#invTable tbody");
+  const repTableBody = document.querySelector("#repTable tbody");
+  const selProduct = document.getElementById("selProduct");
+  const cartBody = document.querySelector("#cartTable tbody");
+
+  const tSubtotal = document.getElementById("tSubtotal");
+  const tProdDisc = document.getElementById("tProdDisc");
+  const tCartDisc = document.getElementById("tCartDisc");
+  const tGrand = document.getElementById("tGrand");
+  const extraDiscountInput = document.getElementById("extraDiscount");
+
+  const editModal = document.getElementById("editModal");
+  let editingId = null;
+
+  function genId(){ return "P" + Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+  /***************
+   * Inventory
+   ***************/
+  function renderInventory(){
+    invTableBody.innerHTML = "";
+    inventory.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.name}</td>
+        <td class="right">₹${p.price.toFixed(2)}</td>
+        <td class="right">${p.stock}</td>
+        <td class="right">${p.discountPct || 0}%</td>
+        <td>
+          <div class="toolbar">
+            <button class="btn secondary" onclick="openEdit('${p.id}')">Edit</button>
+            <button class="btn danger" onclick="removeProduct('${p.id}')">Delete</button>
+          </div>
+        </td>
+      `;
+      invTableBody.appendChild(tr);
+    });
+    populateProductSelect();
+  }
+
+  function populateProductSelect(){
+    selProduct.innerHTML = "";
+    inventory.forEach(p=>{
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.name} — ₹${p.price.toFixed(2)} (${p.stock} in stock)`;
+      selProduct.appendChild(opt);
+    });
+  }
+
+  function addOrUpdateProduct(){
+    const name = document.getElementById("pName").value.trim();
+    const price = parseFloat(document.getElementById("pPrice").value);
+    const stock = parseInt(document.getElementById("pStock").value);
+    const disc  = parseInt(document.getElementById("pDisc").value || "0");
+
+    if(!name || isNaN(price) || isNaN(stock) || price<0 || stock<0 || disc<0 || disc>100){
+      alert("Please enter valid product details.");
+      return;
+    }
+
+    // If a product with same name exists, update it; else add new
+    const existing = inventory.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if(existing){
+      existing.price = price;
+      existing.stock = stock;
+      existing.discountPct = disc;
+    }else{
+      inventory.push({ id: genId(), name, price, stock, discountPct: disc });
+    }
+
+    // clear inputs and refresh
+    document.getElementById("pName").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pStock").value = "";
+    document.getElementById("pDisc").value  = "";
+    renderInventory();
+  }
+
+  function openEdit(id){
+    const p = inventory.find(x=>x.id===id);
+    if(!p) return;
+    editingId = id;
+    document.getElementById("mName").value = p.name;
+    document.getElementById("mPrice").value = p.price;
+    document.getElementById("mStock").value = p.stock;
+    document.getElementById("mDisc").value  = p.discountPct || 0;
+    editModal.showModal();
+  }
+
+  function saveEdit(){
+    const p = inventory.find(x=>x.id===editingId);
+    if(!p) return;
+    const name = document.getElementById("mName").value.trim();
+    const price = parseFloat(document.getElementById("mPrice").value);
+    const stock = parseInt(document.getElementById("mStock").value);
+    const disc  = parseInt(document.getElementById("mDisc").value || "0");
+    if(!name || isNaN(price) || isNaN(stock) || disc<0 || disc>100){
+      alert("Invalid values."); return;
+    }
+    p.name = name; p.price=price; p.stock=stock; p.discountPct=disc;
+    editModal.close();
+    renderInventory();
+  }
+
+  function removeProduct(id){
+    if(!confirm("Delete this product?")) return;
+    // also remove from cart if present
+    cart = cart.filter(c=>c.id!==id);
+    inventory = inventory.filter(x=>x.id!==id);
+    renderInventory();
+    renderCart();
+  }
+
+  /***************
+   * CSV (Inventory)
+   ***************/
+  function exportCSV(){
+    const rows = [
+      ["id","name","price","stock","discountPct"],
+      ...inventory.map(p=>[p.id, p.name, p.price, p.stock, p.discountPct||0])
+    ];
+    const csv = rows.map(r=>r.map(v=>String(v).includes(",")?`"${String(v).replace(/"/g,'""')}"`:v).join(",")).join("\n");
+    downloadBlob(csv, "inventory.csv", "text/csv");
+  }
+  function importCSV(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result.trim();
+      const lines = text.split(/\r?\n/);
+      const header = lines.shift().split(",");
+      const idx = (k)=> header.indexOf(k);
+      const out = [];
+      for(const line of lines){
+        if(!line.trim()) continue;
+        const cols = parseCSVLine(line);
+        out.push({
+          id: cols[idx("id")] || genId(),
+          name: cols[idx("name")] || "",
+          price: parseFloat(cols[idx("price")]||"0"),
+          stock: parseInt(cols[idx("stock")]||"0"),
+          discountPct: parseInt(cols[idx("discountPct")]||"0"),
+        });
+      }
+      inventory = out.filter(p=>p.name);
+      renderInventory();
+    };
+    reader.readAsText(file);
+  }
+  function parseCSVLine(line){
+    // simple CSV parser handling quotes
+    const res=[]; let cur=""; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"' ){
+        if(inQ && line[i+1]==='"'){ cur+='"'; i++; }
+        else inQ=!inQ;
+      }else if(ch===',' && !inQ){ res.push(cur); cur=""; }
+      else cur+=ch;
+    }
+    res.push(cur);
+    return res;
+  }
+
+  /***************
+   * Billing / Cart
+   ***************/
+  function addToCart(){
+    const id = selProduct.value;
+    const qty = parseInt(document.getElementById("qty").value);
+    const prod = inventory.find(p=>p.id===id);
+    if(!prod) return alert("Invalid product.");
+    if(isNaN(qty) || qty<=0) return alert("Enter a valid quantity.");
+    if(qty > prod.stock) return alert(`Only ${prod.stock} in stock.`);
+
+    const existing = cart.find(c=>c.id===id);
+    if(existing){
+      if(existing.qty + qty > prod.stock) return alert(`Only ${prod.stock} in stock.`);
+      existing.qty += qty;
+    }else{
+      cart.push({ id: prod.id, name: prod.name, price: prod.price, qty, discountPct: prod.discountPct||0 });
+    }
+    document.getElementById("qty").value = 1;
+    renderCart();
+  }
+
+  function changeQty(id, newQty){
+    const item = cart.find(c=>c.id===id);
+    const prod = inventory.find(p=>p.id===id);
+    const q = parseInt(newQty);
+    if(!item || !prod) return;
+    if(isNaN(q) || q<=0){ alert("Quantity must be ≥ 1"); renderCart(); return; }
+    if(q > prod.stock){ alert(`Only ${prod.stock} in stock.`); renderCart(); return; }
+    item.qty = q;
+    renderCart();
+  }
+
+  function removeFromCart(id){
+    cart = cart.filter(x=>x.id!==id);
+    renderCart();
+  }
+
+  function clearCart(){
+    cart = [];
+    renderCart();
+  }
+
+  function calcTotals(){
+    let subtotal = 0;
+    let prodDiscount = 0;
+    cart.forEach(item=>{
+      const lineSubtotal = item.qty * item.price;
+      const lineDisc = lineSubtotal * (item.discountPct||0) / 100;
+      subtotal += lineSubtotal;
+      prodDiscount += lineDisc;
+    });
+
+    // cart-level extra discount on (subtotal - product discounts)
+    const base = Math.max(0, subtotal - prodDiscount);
+    const extraPct = clamp(parseFloat(extraDiscountInput.value)||0, 0, 100);
+    const extraDisc = base * (extraPct/100);
+
+    const grand = Math.max(0, base - extraDisc);
+
+    return { subtotal, prodDiscount, extraDisc, grand };
+  }
+
+  function renderCart(){
+    cartBody.innerHTML = "";
+    cart.forEach(item=>{
+      const lineSubtotal = item.qty * item.price;
+      const lineDisc = lineSubtotal * (item.discountPct||0)/100;
+      const lineTotal = lineSubtotal - lineDisc;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td class="right">₹${item.price.toFixed(2)}</td>
+        <td class="right">${item.discountPct||0}%</td>
+        <td class="right">
+          <input class="qty-input" type="number" min="1" step="1" value="${item.qty}" oninput="changeQty('${item.id}', this.value)">
+        </td>
+        <td class="right">₹${lineSubtotal.toFixed(2)}</td>
+        <td class="right">₹${lineDisc.toFixed(2)}</td>
+        <td class="right">₹${lineTotal.toFixed(2)}</td>
+        <td><button class="btn danger" onclick="removeFromCart('${item.id}')">Remove</button></td>
+      `;
+      cartBody.appendChild(tr);
+    });
+
+    const t = calcTotals();
+    tSubtotal.textContent = `₹${t.subtotal.toFixed(2)}`;
+    tProdDisc.textContent = `− ₹${t.prodDiscount.toFixed(2)}`;
+    tCartDisc.textContent = `− ₹${t.extraDisc.toFixed(2)}`;
+    tGrand.textContent = `₹${t.grand.toFixed(2)}`;
+  }
+
+  function checkout(){
+    if(cart.length===0) { alert("Cart is empty."); return; }
+    const totals = calcTotals();
+    if(totals.grand <= 0 && !confirm("Grand total is ₹0. Proceed?")) return;
+
+    // reduce inventory stock
+    for(const item of cart){
+      const prod = inventory.find(p=>p.id===item.id);
+      if(!prod || item.qty>prod.stock){
+        alert(`Stock changed for ${item?.name||"an item"}. Cannot checkout.`);
+        return;
+      }
+    }
+    for(const item of cart){
+      const prod = inventory.find(p=>p.id===item.id);
+      prod.stock -= item.qty;
+    }
+
+    // save transaction
+    const itemsCopy = cart.map(c=>({
+      id:c.id, name:c.name, qty:c.qty, unit:c.price, discPct:c.discountPct
+    }));
+    const tx = {
+      id: "T" + Date.now(),
+      when: new Date().toISOString(),
+      items: itemsCopy,
+      subtotal: round2(totals.subtotal),
+      discountProducts: round2(totals.prodDiscount),
+      discountCart: round2(totals.extraDisc),
+      total: round2(totals.grand)
+    };
+    transactions.unshift(tx);
+
+    // reset
+    clearCart();
+    extraDiscountInput.value = 0;
+
+    // refresh UI
+    renderInventory();
+    renderReports();
+
+    alert(`Checkout complete. Transaction ${tx.id} saved. Total: ₹${tx.total.toFixed(2)}`);
+  }
+
+  /***************
+   * Reports
+   ***************/
+  function renderReports(){
+    repTableBody.innerHTML = "";
+    transactions.forEach(t=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatDateTime(t.when)}</td>
+        <td class="right">${t.items.reduce((a,c)=>a+c.qty,0)}</td>
+        <td class="right">₹${t.subtotal.toFixed(2)}</td>
+        <td class="right">₹${(t.discountProducts + t.discountCart).toFixed(2)}</td>
+        <td class="right">₹${t.total.toFixed(2)}</td>
+      `;
+      repTableBody.appendChild(tr);
+    });
+
+    // Today's summary
+    const todayStr = (new Date()).toISOString().slice(0,10);
+    let sum=0, count=0;
+    transactions.forEach(t=>{
+      if(t.when.slice(0,10)===todayStr){ sum+=t.total; count++; }
+    });
+    document.getElementById("todaySales").textContent = `₹${sum.toFixed(2)}`;
+    document.getElementById("todayOrders").textContent = count;
+  }
+
+  /***************
+   * JSON (Transactions)
+   ***************/
+  function exportJSON(){
+    downloadBlob(JSON.stringify(transactions, null, 2), "transactions.json", "application/json");
+  }
+  function importJSON(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        if(Array.isArray(data)){
+          transactions = data;
+          renderReports();
+        } else {
+          alert("Invalid JSON structure.");
+        }
+      }catch(e){ alert("Failed to parse JSON."); }
+    };
+    reader.readAsText(file);
+  }
+
+  /***************
+   * Utils
+   ***************/
+  function formatDateTime(iso){
+    const d = new Date(iso);
+    return d.toLocaleString();
+  }
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+  function round2(n){ return Math.round(n*100)/100; }
+  function downloadBlob(content, filename, type){
+    const blob = new Blob([content], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    setTimeout(()=> URL.revokeObjectURL(url), 500);
+  }
+
+  /***************
+   * Events
+   ***************/
+  document.getElementById("btnAddProduct").addEventListener("click", addOrUpdateProduct);
+  document.getElementById("btnAddToCart").addEventListener("click", addToCart);
+  document.getElementById("btnClearCart").addEventListener("click", clearCart);
+  document.getElementById("btnCheckout").addEventListener("click", checkout);
+
+  document.getElementById("btnExportCSV").addEventListener("click", exportCSV);
+  document.getElementById("importCSV").addEventListener("change", (e)=> {
+    if(e.target.files[0]) importCSV(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  document.getElementById("btnExportJSON").addEventListener("click", exportJSON);
+  document.getElementById("importJSON").addEventListener("change", (e)=>{
+    if(e.target.files[0]) importJSON(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  document.getElementById("mSave").addEventListener("click", saveEdit);
+
+  extraDiscountInput.addEventListener("input", ()=>{
+    const v = clamp(parseFloat(extraDiscountInput.value)||0,0,100);
+    if(v != extraDiscountInput.value) extraDiscountInput.value = v;
+    renderCart();
+  });
+
+  // init
+  renderInventory();
+  renderReports();
+  renderCart();
+</script>
+</body>
+</html>
