@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Student Project List</title>
+<style>
+  :root {
+    --bg-start: #0b1222;
+    --bg-end: #0f172a;
+    --card: rgba(255,255,255,0.10);
+    --border: rgba(255,255,255,0.18);
+    --text: #e5e7eb;
+    --muted: #9aa4b2;
+    --accent: #22d3ee;
+    --accent-2: #a78bfa;
+    --success: #34d399;
+    --shadow: 0 14px 48px rgba(0,0,0,0.45);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 18px;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 800px at 10% -20%, #0ea5e9 0%, transparent 40%),
+      radial-gradient(1000px 700px at 110% 10%, #7c3aed 0%, transparent 40%),
+      linear-gradient(160deg, var(--bg-start), var(--bg-end));
+    background-attachment: fixed;
+    padding: 24px;
+  }
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 26px 26px 30px;
+    border-radius: var(--radius);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(34px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    background: linear-gradient(90deg, #e2e8f0 0%, #c7d2fe 40%, #99f6e4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #eafffb;
+    background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(167,139,250,0.18));
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+  }
+  .progress {
+    position: relative;
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 6px 0 18px;
+  }
+  .progress .bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(34,211,238,0.65), rgba(167,139,250,0.55));
+    box-shadow: 0 0 10px rgba(34,211,238,0.45);
+  }
+  .project-number {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #c7d2fe;
+    margin-bottom: 8px;
+  }
+  .project-title {
+    font-size: clamp(28px, 4.2vw, 40px);
+    font-weight: 800;
+    margin: 2px 0 12px;
+    color: #e5e7eb;
+    letter-spacing: 0.2px;
+  }
+  .section-title {
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-top: 18px;
+    color: #99f6e4;
+    border-bottom: 2px solid rgba(34,211,238,0.35);
+    padding-bottom: 6px;
+  }
+  p.description {
+    font-size: 1.2rem;
+    margin: 10px 0 12px 0;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  ul.modules {
+    margin-top: 10px;
+    padding-left: 0;
+    list-style: none;
+    color: #d1d5db;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    display: grid;
+    gap: 10px;
+  }
+  ul.modules li {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+  ul.modules li::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-top: 6px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(34,211,238,0.75), rgba(167,139,250,0.6));
+    border: 1px solid rgba(255,255,255,0.24);
+    box-shadow: 0 2px 10px rgba(34,211,238,0.25);
+  }
+  p.files, p.features {
+    font-size: 1.15rem;
+    margin-top: 10px;
+    color: #d1d5db;
+  }
+  p.features strong { color: var(--success); }
+  .navigation {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+  }
+  .nav-group {
+    display: inline-flex;
+    gap: 10px;
+  }
+  button {
+    appearance: none;
+    background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(167,139,250,0.18));
+    color: #eafffb;
+    border: 1px solid rgba(255,255,255,0.24);
+    padding: 14px 22px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .jump {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .jump select {
+    color: var(--text);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .hint {
+    margin-top: 10px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  @media (max-width: 640px) {
+    body { padding: 14px; }
+    .container { padding: 18px 16px 22px; }
+    .navigation { grid-template-columns: 1fr; gap: 10px; }
+    .jump { justify-self: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Student Project Topics</h1>
+    <span class="status-pill" id="counter" aria-live="polite">Project 1 of 1</span>
+  </div>
+  <div class="progress" aria-hidden="true">
+    <div class="bar" id="progressBar"></div>
+  </div>
+  <div id="project-display">
+    <!-- Project content will be injected here -->
+  </div>
+  <div class="navigation">
+    <div class="nav-group">
+      <button id="prevBtn" aria-label="Previous topic">◀ Previous</button>
+      <button id="nextBtn" aria-label="Next topic">Next ▶</button>
+    </div>
+    <div class="jump">
+      <label for="jumpSelect">Jump to:</label>
+      <select id="jumpSelect" aria-label="Jump to topic"></select>
+    </div>
+    <div></div>
+  </div>
+  <div class="hint">Tip: Use Left/Right arrow keys to navigate</div>
+</div>
+
+<script>
+  const projects = [
+    {
+      number: 1,
+      title: "Flight Booking Simulation",
+      description: "Manage flights, book seats, maintain passenger lists.",
+      modules: [
+        "Flight schedule management.",
+        "Seat booking.",
+        "Booking cancellation.",
+        "Passenger list reports."
+      ],
+      files: "flights.json, passengers.json.",
+      extra: "Show seating layout."
+    },
+    {
+      number: 2,
+      title: "Online Quiz Application",
+      description: "Conduct quizzes, evaluate answers, display results.",
+      modules: [
+        "Question bank management.",
+        "Quiz taking.",
+        "Score calculation.",
+        "Result storage."
+      ],
+      files: "questions.json, results.json.",
+      extra: "Random question selection."
+    },
+    {
+      number: 3,
+      title: "Courier & Parcel Tracking",
+      description: "Record and track parcels from sender to receiver.",
+      modules: [
+        "Parcel registration.",
+        "Status update (in transit, delivered).",
+        "Delivery confirmation.",
+        "Parcel search by ID."
+      ],
+      files: "parcels.json, customers.json.",
+      extra: "Delivery time estimation."
+    },
+    {
+      number: 4,
+      title: "School Fee Collection System",
+      description: "Track fee payments, dues, and receipts.",
+      modules: [
+        "Student record management.",
+        "Fee payment recording.",
+        "Due list generation.",
+        "Receipt printing."
+      ],
+      files: "students.json, fees.json.",
+      extra: "SMS fee reminders (mocked)."
+    },
+    {
+      number: 5,
+      title: "Gym Membership Management",
+      description: "Track gym members, fees, attendance, and trainer assignments.",
+      modules: [
+        "Member registration.",
+        "Fee tracking.",
+        "Attendance recording.",
+        "Trainer-member assignment."
+      ],
+      files: "members.json, attendance.json.",
+      extra: "Generate inactive member list."
+    },
+    {
+      number: 6,
+      title: "Library Membership & Book Issue System",
+      description: "Manage library members, books, and borrowing system.",
+      modules: [
+        "Book Management – Add/remove books, check availability.",
+        "Member Registration – Add new members.",
+        "Borrow & Return – Track due dates and late fees.",
+        "Reports – List books borrowed by each member."
+      ],
+      files: "books.json, members.json, borrow history.json",
+      extra: ""
+    },
+    {
+      number: 7,
+      title: "College Event Registration System",
+      description: "Manage registrations for multiple events in a college fest.",
+      modules: [
+        "Event Management – Add, update, delete events (Event class).",
+        "Participant Registration – Register students for events (Participant class).",
+        "File Storage – Store participants & events in JSON/CSV files.",
+        "Search & Reporting – Search participants by event, generate a summary report."
+      ],
+      files: "",
+      extra: "Check if an event is full before registering. Export a list of participants for each event to a CSV file."
+    },
+    {
+      number: 8,
+      title: "Grocery Shop Billing System",
+      description: "Manage inventory, generate bills, and store purchase history.",
+      modules: [
+        "Inventory Management – Add/update products and prices.",
+        "Billing – Add items to cart and calculate totals.",
+        "Discount Module – Apply offers for certain products.",
+        "Reports – Show sales summary for the day."
+      ],
+      files: "inventory.csv, transactions.json",
+      extra: ""
+    },
+    {
+      number: 9,
+      title: "Railway Reservation Simulation",
+      description: "Book, cancel, and view train tickets.",
+      modules: [
+        "Train Schedule Management – Add train numbers, timings, and routes.",
+        "Booking System – Reserve seats and assign seat numbers.",
+        "Cancellation Module – Cancel tickets and free up seats.",
+        "Reports – Show passenger list per train."
+      ],
+      files: "trains.json, passengers.json, bookings.json",
+      extra: ""
+    },
+    {
+      number: 10,
+      title: "Hostel Management System",
+      description: "Track students staying in hostel rooms, fees, and complaints.",
+      modules: [
+        "Room Allocation – Assign rooms to students (Room class).",
+        "Fee Management – Track fee payment status (Fee class).",
+        "Complaint Handling – Log and resolve complaints (Complaint class)."
+      ],
+      files: "All data stored in JSON",
+      extra: "Automatic room vacancy updates. Search for students by room number."
+    },
+    {
+      number: 11,
+      title: "Cinema Ticket Booking System",
+      description: "Console-based ticket booking for multiple movies.",
+      modules: [
+        "Movie Management – Add/remove movies, show timings.",
+        "Seat Booking – Book seats, prevent double booking.",
+        "Payment Simulation – Handle ticket prices and simple payment process.",
+        "Report Generation – Show booked vs. available seats per show."
+      ],
+      files: "Booking history saved in CSV",
+      extra: "Show seating chart in ASCII format."
+    },
+    {
+      number: 12,
+      title: "Food Delivery Ordering System",
+      description: "Console-based app for ordering food from restaurants.",
+      modules: [
+        "Restaurant Management – Store restaurant names and menus.",
+        "Order Placement – Add items to cart, confirm orders.",
+        "Bill Generation – Calculate total with tax.",
+        "Order History – Save and view previous orders."
+      ],
+      files: "All data stored in JSON",
+      extra: "Discounts for orders above a certain amount."
+    },
+    {
+      number: 13,
+      title: "Vehicle Rental System",
+      description: "Manage renting of cars and bikes.",
+      modules: [
+        "Vehicle Management – Add, remove, and update vehicles.",
+        "Booking System – Book vehicles for specific dates.",
+        "Return & Payment – Calculate payment based on rental days.",
+        "Reports – Show available vs. booked vehicles."
+      ],
+      files: "Data stored in JSON/CSV",
+      extra: "Apply extra charges for late returns."
+    },
+    {
+      number: 14,
+      title: "Vehicle Rental System",
+      description: "Manage renting of cars and bikes.",
+      modules: [
+        "Vehicle Management – Add, remove, and update vehicles.",
+        "Booking System – Book vehicles for specific dates.",
+        "Return & Payment – Calculate payment based on rental days.",
+        "Reports – Show available vs. booked vehicles."
+      ],
+      files: "Data stored in JSON/CSV",
+      extra: "Apply extra charges for late returns."
+    },
+    {
+      number: 15,
+      title: "Simple CRM (Customer Relationship Management) Tool",
+      description: "Manage customer data and sales.",
+      modules: [
+        "Customer Management – Add, update, delete customers.",
+        "Lead Tracking – Track potential sales leads.",
+        "Sales Recording – Record completed sales and amounts.",
+        "Reports – Show top customers by purchase amount."
+      ],
+      files: "",
+      extra: "Export customer list to CSV. Search customers by name/email."
+    }
+  ];
+
+  let currentIndex = 0;
+
+  // Populate jump select
+  const jumpSelect = document.getElementById('jumpSelect');
+  projects.forEach((p, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = `#${p.number} • ${p.title}`;
+    jumpSelect.appendChild(opt);
+  });
+
+  function updateProgressUI() {
+    const total = projects.length;
+    const current = currentIndex + 1;
+    const percent = Math.round((currentIndex) / (total - 1) * 100);
+    const counterEl = document.getElementById('counter');
+    const barEl = document.getElementById('progressBar');
+    if (counterEl) counterEl.textContent = `Project ${current} of ${total}`;
+    if (barEl) barEl.style.width = `${total > 1 ? percent : 0}%`;
+    if (jumpSelect) jumpSelect.value = String(currentIndex);
+  }
+
+  function renderProject(index) {
+    const project = projects[index];
+    const container = document.getElementById('project-display');
+
+    const modulesList = project.modules.map(mod => `<li>${mod}</li>`).join("");
+
+    container.innerHTML = `
+      <div class="project-number">Project ${project.number}</div>
+      <div class="project-title">${project.title}</div>
+      <p class="description"><strong>Description:</strong> ${project.description}</p>
+      <div class="section-title">Modules:</div>
+      <ul class="modules">${modulesList}</ul>
+      ${project.files ? `<p class="files"><strong>Files:</strong> ${project.files}</p>` : ""}
+      ${project.extra ? `<p class="features"><strong>Extra Features:</strong> ${project.extra}</p>` : ""}
+    `;
+
+    // Enable/disable buttons
+    document.getElementById('prevBtn').disabled = index === 0;
+    document.getElementById('nextBtn').disabled = index === projects.length - 1;
+    updateProgressUI();
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderProject(currentIndex);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (currentIndex < projects.length - 1) {
+      currentIndex++;
+      renderProject(currentIndex);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  // Jump select handler
+  jumpSelect.addEventListener('change', () => {
+    const idx = parseInt(jumpSelect.value, 10) || 0;
+    currentIndex = Math.min(Math.max(idx, 0), projects.length - 1);
+    renderProject(currentIndex);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    if (e.key === 'ArrowLeft') {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderProject(currentIndex);
+      }
+    } else if (e.key === 'ArrowRight') {
+      if (currentIndex < projects.length - 1) {
+        currentIndex++;
+        renderProject(currentIndex);
+      }
+    }
+  });
+
+  // Initial render
+  renderProject(currentIndex);
+</script>
+
+</body>
+</html>
