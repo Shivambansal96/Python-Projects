@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gym Membership Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #222;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.5em;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    section {
+      margin-bottom: 25px;
+    }
+    h2 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      color: #444;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #28a745;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    .inactive {
+      background: #ffe6e6;
+    }
+  </style>
+</head>
+<body>
+
+<header>🏋️‍♂️ Gym Membership Management</header>
+
+<main>
+  <!-- Member Registration -->
+  <section>
+    <h2>Member Registration</h2>
+    <input id="memberName" placeholder="Member Name">
+    <input id="memberEmail" placeholder="Email">
+    <input id="memberFee" type="number" placeholder="Monthly Fee">
+    <select id="trainerSelect">
+      <option value="">Assign Trainer</option>
+      <option>John</option>
+      <option>Emily</option>
+      <option>Mike</option>
+    </select>
+    <button onclick="addMember()">Add Member</button>
+    <table id="memberTable">
+      <tr><th>Name</th><th>Email</th><th>Fee</th><th>Trainer</th><th>Last Attendance</th></tr>
+    </table>
+  </section>
+
+  <!-- Attendance Recording -->
+  <section>
+    <h2>Attendance Recording</h2>
+    <select id="attendanceMember"></select>
+    <button onclick="recordAttendance()">Mark Present</button>
+  </section>
+
+  <!-- Fee Tracking -->
+  <section>
+    <h2>Fee Tracking (with Discount)</h2>
+    <select id="feeMember"></select>
+    <input id="discount" type="number" placeholder="Discount (%)">
+    <button onclick="calculateFee()">Calculate Payable Fee</button>
+    <p id="feeResult"></p>
+  </section>
+
+  <!-- Inactive Members -->
+  <section>
+    <h2>Inactive Members (No attendance in last 7 days)</h2>
+    <button onclick="showInactive()">Show Inactive</button>
+    <table id="inactiveTable">
+      <tr><th>Name</th><th>Email</th><th>Last Attendance</th></tr>
+    </table>
+  </section>
+</main>
+
+<script>
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
+function saveMembers() {
+  localStorage.setItem("members", JSON.stringify(members));
+}
+
+function renderMembers() {
+  const memberTable = document.getElementById("memberTable");
+  const attendanceSelect = document.getElementById("attendanceMember");
+  const feeMemberSelect = document.getElementById("feeMember");
+  memberTable.innerHTML = "<tr><th>Name</th><th>Email</th><th>Fee</th><th>Trainer</th><th>Last Attendance</th></tr>";
+  attendanceSelect.innerHTML = "";
+  feeMemberSelect.innerHTML = "";
+
+  members.forEach((m, i) => {
+    const row = `<tr>
+      <td>${m.name}</td>
+      <td>${m.email}</td>
+      <td>₹${m.fee}</td>
+      <td>${m.trainer}</td>
+      <td>${m.lastAttendance || "Never"}</td>
+    </tr>`;
+    memberTable.innerHTML += row;
+
+    attendanceSelect.innerHTML += `<option value="${i}">${m.name}</option>`;
+    feeMemberSelect.innerHTML += `<option value="${i}">${m.name}</option>`;
+  });
+}
+
+function addMember() {
+  const name = document.getElementById("memberName").value.trim();
+  const email = document.getElementById("memberEmail").value.trim();
+  const fee = parseFloat(document.getElementById("memberFee").value);
+  const trainer = document.getElementById("trainerSelect").value;
+
+  if (!name || !email || isNaN(fee) || !trainer) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  members.push({ name, email, fee, trainer, lastAttendance: null });
+  saveMembers();
+  renderMembers();
+}
+
+function recordAttendance() {
+  const index = document.getElementById("attendanceMember").value;
+  if (index === "") return;
+  members[index].lastAttendance = new Date().toISOString().split("T")[0];
+  saveMembers();
+  renderMembers();
+}
+
+function calculateFee() {
+  const index = document.getElementById("feeMember").value;
+  const discount = parseFloat(document.getElementById("discount").value) || 0;
+  if (index === "") return;
+
+  let fee = members[index].fee;
+  let payable = fee - (fee * discount / 100);
+  document.getElementById("feeResult").innerText = 
+    `Payable Fee for ${members[index].name}: ₹${payable.toFixed(2)}`;
+}
+
+function showInactive() {
+  const inactiveTable = document.getElementById("inactiveTable");
+  inactiveTable.innerHTML = "<tr><th>Name</th><th>Email</th><th>Last Attendance</th></tr>";
+  const today = new Date();
+
+  members.forEach(m => {
+    if (!m.lastAttendance || (today - new Date(m.lastAttendance)) / (1000 * 60 * 60 * 24) > 7) {
+      inactiveTable.innerHTML += `<tr class="inactive">
+        <td>${m.name}</td>
+        <td>${m.email}</td>
+        <td>${m.lastAttendance || "Never"}</td>
+      </tr>`;
+    }
+  });
+}
+
+renderMembers();
+</script>
+
+</body>
+</html>

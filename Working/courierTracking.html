@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Courier & Parcel Tracking</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --fg:#1f2937; --card:#ffffff;
+    --brand:#ff9800; --brand-d:#e68900; --ok:#16a34a; --warn:#f97316; --bad:#dc2626; --muted:#6b7280;
+    --ring: rgba(255,152,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial;
+    background:var(--bg); color:var(--fg);
+  }
+  header{
+    background:var(--brand); color:#fff; padding:20px; text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+  }
+  header h1{margin:0; font-size:28px}
+  header p{margin:.25rem 0 0; opacity:.9}
+  main{max-width:1100px; margin:auto; padding:18px}
+  .grid{
+    display:grid; gap:16px; grid-template-columns: repeat(12, 1fr);
+  }
+  .card{
+    background:var(--card); border-radius:12px; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.06);
+  }
+  .span-4{grid-column: span 4}
+  .span-8{grid-column: span 8}
+  .span-12{grid-column: span 12}
+  h2{margin:.25rem 0 12px; font-size:20px}
+  form .row{display:flex; gap:10px; flex-wrap:wrap}
+  input, select, button, textarea{
+    padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; color:var(--fg);
+    outline:none; transition:border .15s, box-shadow .15s; font-size:14px;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--brand); box-shadow:0 0 0 4px var(--ring)}
+  button{background:var(--brand); color:#fff; border:none; cursor:pointer}
+  button:hover{background:var(--brand-d)}
+  .btn-secondary{background:#374151}
+  .btn-secondary:hover{background:#111827}
+  .btn-ghost{background:transparent; color:var(--brand); border:1px solid var(--brand)}
+  .pill{display:inline-block; padding:.2rem .55rem; border-radius:999px; font-size:12px}
+  .pill.ok{background:#ecfdf5; color:#065f46}
+  .pill.warn{background:#fff7ed; color:#9a3412}
+  .pill.bad{background:#fef2f2; color:#991b1b}
+  .pill.info{background:#eef2ff; color:#3730a3}
+  .muted{color:var(--muted)}
+  table{width:100%; border-collapse:collapse}
+  th, td{padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; vertical-align:top}
+  th{font-weight:600; color:#374151; background:#fafafa}
+  .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .right{margin-left:auto}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+  .seatmap{display:grid; grid-template-columns: repeat(6, 1fr); gap:8px}
+  .status-line{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .timeline{list-style:none; padding-left:0; margin:0}
+  .timeline li{padding:8px 0; border-left:3px solid #e5e7eb; margin-left:10px; padding-left:10px}
+  .actions button{margin-right:6px}
+  .hint{font-size:12px; color:var(--muted); margin-top:4px}
+  .nowrap{white-space:nowrap}
+  @media (max-width: 900px){
+    .span-4, .span-8, .span-12{grid-column: span 12}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Courier & Parcel Tracking</h1>
+  <p>Record parcels, track status, confirm delivery — with ETA</p>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- Register Parcel -->
+    <section class="card span-4">
+      <h2>Parcel Registration</h2>
+      <form id="registerForm">
+        <div class="row">
+          <input type="text" id="senderName" placeholder="Sender Name" required>
+          <input type="text" id="senderPhone" placeholder="Sender Phone" required>
+        </div>
+        <div class="row">
+          <input type="text" id="receiverName" placeholder="Receiver Name" required>
+          <input type="text" id="receiverPhone" placeholder="Receiver Phone" required>
+        </div>
+        <div class="row">
+          <select id="source" required>
+            <option value="" disabled selected>Source City</option>
+          </select>
+          <select id="destination" required>
+            <option value="" disabled selected>Destination City</option>
+          </select>
+        </div>
+        <div class="row">
+          <input type="text" id="weight" placeholder="Weight (kg)" required>
+          <input type="text" id="dimensions" placeholder="Dimensions (cm) e.g. 30x20x10" required>
+        </div>
+        <button type="submit">Register Parcel</button>
+        <div class="hint">Auto-generates a tracking ID like <span class="mono">CP12345</span> and estimates delivery date.</div>
+      </form>
+    </section>
+
+    <!-- Update Status -->
+    <section class="card span-4">
+      <h2>Status Update</h2>
+      <form id="statusForm">
+        <div class="row">
+          <input type="text" id="statusParcelId" placeholder="Tracking ID (e.g., CP10001)" required class="mono">
+        </div>
+        <div class="row">
+          <select id="newStatus" required>
+            <option value="" disabled selected>Select new status</option>
+            <option>In Transit</option>
+            <option>Out for Delivery</option>
+            <option>Delayed</option>
+          </select>
+        </div>
+        <textarea id="statusNote" placeholder="Optional note (hub scanned, weather delay, etc.)"></textarea>
+        <button type="submit">Update Status</button>
+      </form>
+      <p class="hint">Updating to <b>Delayed</b> pushes ETA by +1 day. <b>Out for Delivery</b> sets ETA to today.</p>
+    </section>
+
+    <!-- Delivery Confirmation -->
+    <section class="card span-4">
+      <h2>Delivery Confirmation</h2>
+      <form id="deliverForm">
+        <div class="row">
+          <input type="text" id="deliverParcelId" placeholder="Tracking ID" required class="mono">
+          <input type="text" id="receiverProof" placeholder="Receiver Name / OTP / Sign ref." required>
+        </div>
+        <button type="submit" class="btn-secondary">Mark Delivered</button>
+      </form>
+      <p class="hint">Records delivered time and locks further status changes.</p>
+    </section>
+
+    <!-- Parcels Table -->
+    <section class="card span-12">
+      <div class="flex">
+        <h2>Parcels</h2>
+        <input id="searchBox" class="right" placeholder="Search by Tracking ID or Receiver" />
+      </div>
+      <table id="parcelsTable">
+        <thead>
+          <tr>
+            <th>Tracking ID</th>
+            <th>Route</th>
+            <th>Receiver</th>
+            <th>Status</th>
+            <th>ETA</th>
+            <th>Updated</th>
+            <th class="nowrap">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="hint">Data is saved to your browser’s localStorage (simulating <span class="mono">parcels.json</span> & <span class="mono">customers.json</span>).</div>
+    </section>
+
+    <!-- Search & Details -->
+    <section class="card span-8">
+      <h2>Parcel Search / Details</h2>
+      <div class="row">
+        <input id="detailSearch" class="mono" placeholder="Enter Tracking ID (e.g., CP10001)">
+        <button id="detailBtn">Show Details</button>
+      </div>
+      <div id="details"></div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="card span-4">
+      <h2>Today’s Snapshot</h2>
+      <ul class="timeline" id="snapshot">
+        <!-- filled by JS -->
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script>
+/* ===============================
+   Simulated Data “files”
+   parcels.json & customers.json
+   =============================== */
+
+const CITY_DISTANCE_KM = {
+  "Delhi":     { "Mumbai": 1410, "Bengaluru": 2150, "Kolkata": 1500, "Chennai": 2200, "Pune": 1460, "Hyderabad": 1570 },
+  "Mumbai":    { "Delhi": 1410, "Bengaluru": 985,  "Kolkata": 2050, "Chennai": 1330, "Pune": 150,  "Hyderabad": 710  },
+  "Bengaluru": { "Delhi": 2150, "Mumbai": 985,  "Kolkata": 1870, "Chennai": 350,  "Pune": 840,  "Hyderabad": 570  },
+  "Kolkata":   { "Delhi": 1500, "Mumbai": 2050, "Bengaluru": 1870, "Chennai": 1670, "Pune": 1950, "Hyderabad": 1550 },
+  "Chennai":   { "Delhi": 2200, "Mumbai": 1330, "Bengaluru": 350,  "Kolkata": 1670, "Pune": 1230, "Hyderabad": 630  },
+  "Pune":      { "Delhi": 1460, "Mumbai": 150,  "Bengaluru": 840,  "Kolkata": 1950, "Chennai": 1230, "Hyderabad": 560 },
+  "Hyderabad": { "Delhi": 1570, "Mumbai": 710,  "Bengaluru": 570,  "Kolkata": 1550, "Chennai": 630,  "Pune": 560  }
+};
+
+// avg surface logistics speed + handling buffer -> days
+function estimateDays(src, dst){
+  if (!src || !dst || src === dst) return 1;
+  const dist = (CITY_DISTANCE_KM[src]||{})[dst] || (CITY_DISTANCE_KM[dst]||{})[src] || 800;
+  const speedKmPerDay = 700;                   // conservative door-to-door per day
+  const base = Math.ceil(dist / speedKmPerDay);
+  return Math.min(Math.max(base, 1), 7);       // clamp 1..7 days
+}
+
+const cities = Object.keys(CITY_DISTANCE_KM);
+
+// LocalStorage helpers
+const LS_KEYS = { PARCELS:'ct_parcels', CUSTOMERS:'ct_customers', COUNTER:'ct_counter' };
+
+const store = {
+  load(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback; }catch{ return fallback; } },
+  save(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+};
+
+let parcels = store.load(LS_KEYS.PARCELS, []);      // [{parcelId, senderId, receiverId, ...}]
+let customers = store.load(LS_KEYS.CUSTOMERS, []);  // [{id, name, phone}]
+let idCounter = store.load(LS_KEYS.COUNTER, 10000); // for CP IDs
+
+// Utility
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+const fmtDate = (d) => new Date(d).toLocaleString();
+const todayISO = () => new Date().toISOString();
+
+function createTrackingId(){ idCounter++; store.save(LS_KEYS.COUNTER, idCounter); return `CP${idCounter}`; }
+
+function upsertCustomer(name, phone){
+  const existing = customers.find(c => c.name.trim().toLowerCase() === name.trim().toLowerCase() && c.phone === phone);
+  if (existing) return existing.id;
+  const id = customers.length ? Math.max(...customers.map(c=>c.id))+1 : 1;
+  customers.push({id, name, phone});
+  store.save(LS_KEYS.CUSTOMERS, customers);
+  return id;
+}
+
+function addHistory(parcel, status, note=''){
+  parcel.history.push({ date: todayISO(), status, note });
+  parcel.updatedAt = todayISO();
+}
+
+function recalcETA(parcel){
+  const days = estimateDays(parcel.source, parcel.destination);
+  // baseline from createdAt + days
+  let eta = new Date(parcel.createdAt);
+  eta.setDate(eta.getDate() + days);
+  // adjust: Out for Delivery -> today, Delayed (last event) adds +1
+  const last = parcel.history[parcel.history.length-1];
+  if (last?.status === 'Out for Delivery'){ eta = new Date(); }
+  const delays = parcel.history.filter(h=>h.status==='Delayed').length;
+  eta.setDate(eta.getDate() + delays);
+  parcel.eta = eta.toISOString();
+}
+
+/* ===============================
+   Initial UI Setup
+   =============================== */
+(function initCities(){
+  const srcSel = $('#source'), dstSel = $('#destination');
+  cities.forEach(c => {
+    srcSel.append(new Option(c, c));
+    dstSel.append(new Option(c, c));
+  });
+})();
+
+/* ===============================
+   Render Parcels Table
+   =============================== */
+function renderParcels(filter=''){
+  const tbody = $('#parcelsTable tbody');
+  tbody.innerHTML = '';
+  const q = filter.trim().toLowerCase();
+  const rows = parcels
+    .filter(p => !q || p.parcelId.toLowerCase().includes(q) || (p.receiver?.name||'').toLowerCase().includes(q))
+    .sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+
+  for(const p of rows){
+    const status = p.deliveredAt ? 'Delivered' : (p.history[p.history.length-1]?.status || 'Registered');
+    const pillClass = status==='Delivered' ? 'ok' : status==='Delayed' ? 'warn' : status==='In Transit' ? 'info' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="mono">${p.parcelId}</td>
+      <td>${p.source} → ${p.destination}<div class="hint">${p.weight}kg • ${p.dimensions}</div></td>
+      <td>${p.receiver?.name||'-'}<div class="hint">${p.receiver?.phone||''}</div></td>
+      <td><span class="pill ${pillClass}">${status}</span></td>
+      <td>${p.eta ? new Date(p.eta).toLocaleDateString() : '-'}</td>
+      <td class="muted">${fmtDate(p.updatedAt||p.createdAt)}</td>
+      <td class="actions">
+        <button class="btn-ghost" onclick="showDetails('${p.parcelId}')">Details</button>
+        <button onclick="prefillForms('${p.parcelId}')">Edit</button>
+        <button class="btn-secondary" onclick="quickAdvance('${p.parcelId}')">Advance</button>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+  renderSnapshot();
+}
+
+function renderSnapshot(){
+  const s = $('#snapshot');
+  const today = new Date().toDateString();
+  const createdToday = parcels.filter(p => new Date(p.createdAt).toDateString()===today).length;
+  const deliveredToday = parcels.filter(p => p.deliveredAt && new Date(p.deliveredAt).toDateString()===today).length;
+  const inTransit = parcels.filter(p => !p.deliveredAt && (p.history.at(-1)?.status==='In Transit')).length;
+  const delayed = parcels.filter(p => !p.deliveredAt && p.history.some(h=>h.status==='Delayed')).length;
+
+  s.innerHTML = `
+    <li><b>${createdToday}</b> parcels registered today</li>
+    <li><b>${inTransit}</b> currently in transit</li>
+    <li><b>${delayed}</b> delayed</li>
+    <li><b>${deliveredToday}</b> delivered today</li>`;
+}
+
+/* ===============================
+   Register Parcel
+   =============================== */
+$('#registerForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const sender = { name: $('#senderName').value.trim(), phone: $('#senderPhone').value.trim() };
+  const receiver = { name: $('#receiverName').value.trim(), phone: $('#receiverPhone').value.trim() };
+  const source = $('#source').value, destination = $('#destination').value;
+  const weight = $('#weight').value.trim(), dimensions = $('#dimensions').value.trim();
+
+  if (!source || !destination) return alert('Select source and destination.');
+  const senderId = upsertCustomer(sender.name, sender.phone);
+  const receiverId = upsertCustomer(receiver.name, receiver.phone);
+
+  const parcel = {
+    parcelId: createTrackingId(),
+    senderId, receiverId,
+    sender, receiver,
+    source, destination,
+    weight, dimensions,
+    status: 'Registered',
+    createdAt: todayISO(),
+    updatedAt: todayISO(),
+    deliveredAt: null,
+    eta: null,
+    history: []
+  };
+  addHistory(parcel, 'Registered', 'Parcel created');
+  recalcETA(parcel);
+  parcels.push(parcel);
+  store.save(LS_KEYS.PARCELS, parcels);
+
+  e.target.reset();
+  alert(`Parcel registered! Tracking ID: ${parcel.parcelId}`);
+  renderParcels($('#searchBox').value);
+  showDetails(parcel.parcelId);
+});
+
+/* ===============================
+   Status Update
+   =============================== */
+$('#statusForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const id = $('#statusParcelId').value.trim().toUpperCase();
+  const status = $('#newStatus').value;
+  const note = $('#statusNote').value.trim();
+
+  const p = parcels.find(x=>x.parcelId===id);
+  if(!p) return alert('Parcel ID not found.');
+  if(p.deliveredAt) return alert('Parcel already delivered. No further updates allowed.');
+
+  addHistory(p, status, note);
+  if(status==='Delayed'){ /* eta +1 handled in recalcETA */ }
+  recalcETA(p);
+  store.save(LS_KEYS.PARCELS, parcels);
+  e.target.reset();
+  renderParcels($('#searchBox').value);
+  showDetails(id);
+});
+
+/* ===============================
+   Delivery Confirmation
+   =============================== */
+$('#deliverForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const id = $('#deliverParcelId').value.trim().toUpperCase();
+  const proof = $('#receiverProof').value.trim();
+
+  const p = parcels.find(x=>x.parcelId===id);
+  if(!p) return alert('Parcel ID not found.');
+  if(p.deliveredAt) return alert('Already delivered.');
+
+  addHistory(p, 'Delivered', proof ? `Proof: ${proof}` : 'Delivered');
+  p.deliveredAt = todayISO();
+  p.status = 'Delivered';
+  p.eta = p.deliveredAt; // actual
+  store.save(LS_KEYS.PARCELS, parcels);
+  e.target.reset();
+  renderParcels($('#searchBox').value);
+  showDetails(id);
+});
+
+/* ===============================
+   Search bar / filter
+   =============================== */
+$('#searchBox').addEventListener('input', (e)=> renderParcels(e.target.value));
+
+/* ===============================
+   Details panel
+   =============================== */
+$('#detailBtn').addEventListener('click', ()=> showDetails($('#detailSearch').value.trim().toUpperCase()));
+
+function showDetails(id){
+  if(!id) return;
+  $('#detailSearch').value = id;
+  const p = parcels.find(x=>x.parcelId===id);
+  const panel = $('#details');
+  if(!p){ panel.innerHTML = `<p class="muted">No parcel found for <b class="mono">${id}</b>.</p>`; return; }
+
+  const status = p.deliveredAt ? 'Delivered' : (p.history.at(-1)?.status || 'Registered');
+  const etaTxt = p.eta ? new Date(p.eta).toLocaleString() : '-';
+  panel.innerHTML = `
+    <div class="status-line">
+      <span class="pill ${status==='Delivered'?'ok':status==='Delayed'?'warn':status==='In Transit'?'info':''}">${status}</span>
+      <span>Tracking:</span> <b class="mono">${p.parcelId}</b>
+      <span class="muted">• ETA:</span> <b>${etaTxt}</b>
+    </div>
+    <div style="margin-top:10px" class="grid">
+      <div class="card span-12" style="padding:10px">
+        <div class="flex">
+          <div><b>Route:</b> ${p.source} → ${p.destination}</div>
+          <div class="right"><b>Weight:</b> ${p.weight}kg &nbsp; <b>Size:</b> ${p.dimensions}</div>
+        </div>
+        <div class="flex" style="margin-top:6px">
+          <div><b>Sender:</b> ${p.sender.name} (${p.sender.phone})</div>
+          <div class="right"><b>Receiver:</b> ${p.receiver.name} (${p.receiver.phone})</div>
+        </div>
+      </div>
+      <div class="span-12">
+        <h3 style="margin:10px 0 6px">Tracking History</h3>
+        <ul class="timeline">
+          ${p.history.slice().reverse().map(h=>`
+            <li>
+              <b>${h.status}</b> <span class="muted">• ${fmtDate(h.date)}</span>
+              ${h.note? `<div class="hint">${h.note}</div>`:''}
+            </li>`).join('')}
+        </ul>
+      </div>
+    </div>`;
+  // Also prefill update forms for convenience
+  prefillForms(p.parcelId, true);
+}
+
+function prefillForms(id, silent=false){
+  $('#statusParcelId').value = id;
+  $('#deliverParcelId').value = id;
+  if(!silent) alert('Forms prefilled with ' + id);
+}
+
+/* ===============================
+   Quick advance helper
+   =============================== */
+function quickAdvance(id){
+  const p = parcels.find(x=>x.parcelId===id);
+  if(!p) return;
+  if(p.deliveredAt) return alert('Already delivered.');
+
+  const last = p.history.at(-1)?.status || 'Registered';
+  const next = last==='Registered' ? 'In Transit'
+            : last==='In Transit' ? 'Out for Delivery'
+            : 'Delivered';
+  if(next==='Delivered'){
+    addHistory(p, 'Delivered', 'Quick complete');
+    p.deliveredAt = todayISO();
+    p.status = 'Delivered';
+    p.eta = p.deliveredAt;
+  }else{
+    addHistory(p, next, 'Quick advance');
+    recalcETA(p);
+  }
+  store.save(LS_KEYS.PARCELS, parcels);
+  renderParcels($('#searchBox').value);
+  showDetails(id);
+}
+
+/* ===============================
+   Seed sample data (first run)
+   =============================== */
+(function seed(){
+  if(parcels.length) { renderParcels(); return; }
+  const samples = [
+    {
+      sender:{name:'Shivam Bansal', phone:'+91-98765-00001'},
+      receiver:{name:'Mohini Bansal', phone:'+91-91234-00002'},
+      source:'Delhi', destination:'Mumbai', weight:'2', dimensions:'30x20x10'
+    },
+    {
+      sender:{name:'Rahul Sharma', phone:'+91-90000-22222'},
+      receiver:{name:'Anita Verma', phone:'+91-93333-44444'},
+      source:'Bengaluru', destination:'Chennai', weight:'1.2', dimensions:'25x15x8'
+    }
+  ];
+  for(const s of samples){
+    const senderId = upsertCustomer(s.sender.name, s.sender.phone);
+    const receiverId = upsertCustomer(s.receiver.name, s.receiver.phone);
+    const parcel = {
+      parcelId: createTrackingId(), senderId, receiverId,
+      sender:s.sender, receiver:s.receiver,
+      source:s.source, destination:s.destination,
+      weight:s.weight, dimensions:s.dimensions,
+      status:'Registered', createdAt: todayISO(), updatedAt: todayISO(),
+      deliveredAt:null, eta:null, history:[]
+    };
+    addHistory(parcel, 'Registered', 'Seeded');
+    recalcETA(parcel);
+    parcels.push(parcel);
+  }
+  store.save(LS_KEYS.PARCELS, parcels);
+  renderParcels();
+})();
+
+/* expose for inline handlers */
+window.showDetails = showDetails;
+window.prefillForms = prefillForms;
+window.quickAdvance = quickAdvance;
+</script>
+</body>
+</html>

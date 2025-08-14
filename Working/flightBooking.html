@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flight Booking Simulation</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background: #333; color: #fff; padding: 10px; text-align: center; }
+    main { padding: 20px; max-width: 1000px; margin: auto; }
+    section { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    h2 { margin-top: 0; }
+    label { display: block; margin-top: 10px; }
+    input, select, button { padding: 5px; margin-top: 5px; width: 100%; max-width: 300px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    .seat { width: 30px; height: 30px; display: inline-block; margin: 3px; cursor: pointer; border-radius: 4px; }
+    .available { background: #4caf50; }
+    .booked { background: #f44336; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<header>
+    <h1>Flight Booking Simulation</h1>
+</header>
+<main>
+
+    <!-- Flight Schedule Management -->
+    <section>
+        <h2>Flight Schedule Management</h2>
+        <label>Flight Number: <input type="text" id="flightNumber"></label>
+        <label>Origin: <input type="text" id="origin"></label>
+        <label>Destination: <input type="text" id="destination"></label>
+        <label>Total Seats: <input type="number" id="totalSeats" value="20"></label>
+        <button onclick="addFlight()">Add Flight</button>
+        <h3>Available Flights</h3>
+        <table id="flightsTable">
+            <tr><th>Flight No</th><th>Origin</th><th>Destination</th><th>Seats</th><th>Booked</th><th>Action</th></tr>
+        </table>
+    </section>
+
+    <!-- Seat Booking -->
+    <section>
+        <h2>Seat Booking</h2>
+        <label>Select Flight:
+            <select id="flightSelect"></select>
+        </label>
+        <div id="seatLayout"></div>
+    </section>
+
+    <!-- Booking Cancellation -->
+    <section>
+        <h2>Cancel Booking</h2>
+        <label>Passenger Name: <input type="text" id="cancelName"></label>
+        <button onclick="cancelBooking()">Cancel Booking</button>
+    </section>
+
+    <!-- Passenger List -->
+    <section>
+        <h2>Passenger List</h2>
+        <label>Select Flight:
+            <select id="reportFlightSelect"></select>
+        </label>
+        <table id="passengerTable">
+            <tr><th>Name</th><th>Seat</th></tr>
+        </table>
+    </section>
+
+</main>
+<script>
+    let flights = [];
+    let passengers = [];
+
+    function addFlight() {
+        const number = document.getElementById('flightNumber').value;
+        const origin = document.getElementById('origin').value;
+        const destination = document.getElementById('destination').value;
+        const totalSeats = parseInt(document.getElementById('totalSeats').value);
+
+        if (!number || !origin || !destination || totalSeats <= 0) return alert('Please fill all fields correctly.');
+
+        flights.push({ number, origin, destination, totalSeats });
+        updateFlightTables();
+        document.getElementById('flightNumber').value = '';
+        document.getElementById('origin').value = '';
+        document.getElementById('destination').value = '';
+    }
+
+    function updateFlightTables() {
+        const flightsTable = document.getElementById('flightsTable');
+        const flightSelect = document.getElementById('flightSelect');
+        const reportFlightSelect = document.getElementById('reportFlightSelect');
+
+        flightsTable.innerHTML = '<tr><th>Flight No</th><th>Origin</th><th>Destination</th><th>Seats</th><th>Booked</th><th>Action</th></tr>';
+        flightSelect.innerHTML = '';
+        reportFlightSelect.innerHTML = '';
+
+        flights.forEach((flight, i) => {
+            const bookedSeats = passengers.filter(p => p.flight === flight.number).length;
+            flightsTable.innerHTML += `<tr>
+                <td>${flight.number}</td>
+                <td>${flight.origin}</td>
+                <td>${flight.destination}</td>
+                <td>${flight.totalSeats}</td>
+                <td>${bookedSeats}</td>
+                <td><button onclick="removeFlight(${i})">Remove</button></td>
+            </tr>`;
+
+            flightSelect.innerHTML += `<option value="${flight.number}">${flight.number}</option>`;
+            reportFlightSelect.innerHTML += `<option value="${flight.number}">${flight.number}</option>`;
+        });
+    }
+
+    function removeFlight(index) {
+        flights.splice(index, 1);
+        passengers = passengers.filter(p => flights.some(f => f.number === p.flight));
+        updateFlightTables();
+    }
+
+    document.getElementById('flightSelect').addEventListener('change', showSeats);
+
+    function showSeats() {
+        const flightNumber = document.getElementById('flightSelect').value;
+        const flight = flights.find(f => f.number === flightNumber);
+        if (!flight) return;
+
+        const seatLayout = document.getElementById('seatLayout');
+        seatLayout.innerHTML = '';
+        for (let i = 1; i <= flight.totalSeats; i++) {
+            const booked = passengers.some(p => p.flight === flightNumber && p.seat === i);
+            const seatDiv = document.createElement('div');
+            seatDiv.className = 'seat ' + (booked ? 'booked' : 'available');
+            seatDiv.textContent = i;
+            if (!booked) {
+                seatDiv.onclick = () => {
+                    const name = prompt('Enter passenger name:');
+                    if (name) {
+                        passengers.push({ name, flight: flightNumber, seat: i });
+                        showSeats();
+                        updateFlightTables();
+                    }
+                };
+            }
+            seatLayout.appendChild(seatDiv);
+        }
+    }
+
+    function cancelBooking() {
+        const name = document.getElementById('cancelName').value;
+        const before = passengers.length;
+        passengers = passengers.filter(p => p.name.toLowerCase() !== name.toLowerCase());
+        if (passengers.length < before) {
+            alert('Booking cancelled.');
+            showSeats();
+            updateFlightTables();
+        } else {
+            alert('Passenger not found.');
+        }
+    }
+
+    document.getElementById('reportFlightSelect').addEventListener('change', showPassengerList);
+
+    function showPassengerList() {
+        const flightNumber = document.getElementById('reportFlightSelect').value;
+        const passengerTable = document.getElementById('passengerTable');
+        passengerTable.innerHTML = '<tr><th>Name</th><th>Seat</th></tr>';
+        passengers.filter(p => p.flight === flightNumber)
+                  .forEach(p => passengerTable.innerHTML += `<tr><td>${p.name}</td><td>${p.seat}</td></tr>`);
+    }
+</script>
+</body>
+</html>

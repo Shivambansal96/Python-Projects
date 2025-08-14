@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Quiz Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            margin-top: 50px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .option {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #fafafa;
+            transition: 0.3s;
+        }
+        .option:hover {
+            background: #e0e0e0;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+    </head>
+    <body>
+    
+    <div class="container">
+        <h1>Online Quiz</h1>
+        <div id="quiz-container">
+            <div id="question-container"></div>
+            <div id="options-container"></div>
+            <button id="next-btn" style="display:none;">Next</button>
+        </div>
+        <div id="result-container" style="display:none;">
+            <h2>Your Score: <span id="score"></span></h2>
+            <button onclick="restartQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+    
+    <script>
+    // Question Bank (Simulating questions.json)
+    const questions = [
+        { question: "What is the capital of France?", options: ["Berlin", "London", "Paris", "Rome"], answer: "Paris" },
+        { question: "Which language is used for web apps?", options: ["Python", "JavaScript", "C++", "Java"], answer: "JavaScript" },
+        { question: "Who is the founder of Microsoft?", options: ["Steve Jobs", "Bill Gates", "Elon Musk", "Mark Zuckerberg"], answer: "Bill Gates" },
+        { question: "What does HTML stand for?", options: ["Hyper Trainer Marking Language", "Hyper Text Markup Language", "Hyper Text Marketing Language", "Hyper Text Markup Leveler"], answer: "Hyper Text Markup Language" },
+        { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Mars" },
+        // Added 5 more questions
+        { question: "What is the largest ocean on Earth?", options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], answer: "Pacific Ocean" },
+        { question: "Which gas do plants absorb from the atmosphere?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], answer: "Carbon Dioxide" },
+        { question: "What is 15 × 3?", options: ["30", "45", "60", "35"], answer: "45" },
+        { question: "Which device is used to measure temperature?", options: ["Thermometer", "Barometer", "Hygrometer", "Altimeter"], answer: "Thermometer" },
+        { question: "In which year did World War II end?", options: ["1945", "1939", "1918", "1965"], answer: "1945" }
+    ];
+    
+    // Shuffle questions for random selection
+    let quizQuestions = [...questions].sort(() => Math.random() - 0.5);
+    
+    let currentQuestionIndex = 0;
+    let score = 0;
+    
+    // Load question
+    function loadQuestion() {
+        let q = quizQuestions[currentQuestionIndex];
+        document.getElementById("question-container").innerHTML = `<div class="question">${q.question}</div>`;
+        let optionsHtml = "";
+        q.options.forEach(opt => {
+            optionsHtml += `<div class="option" onclick="selectOption(this)">${opt}</div>`;
+        });
+        document.getElementById("options-container").innerHTML = optionsHtml;
+        document.getElementById("next-btn").style.display = "none";
+    }
+    
+    // Select option
+    function selectOption(element) {
+        let selected = element.innerText;
+        if (selected === quizQuestions[currentQuestionIndex].answer) {
+            score++;
+        }
+        let allOptions = document.querySelectorAll(".option");
+        allOptions.forEach(opt => {
+            opt.style.pointerEvents = "none";
+            if (opt.innerText === quizQuestions[currentQuestionIndex].answer) {
+                opt.style.background = "#28a745";
+                opt.style.color = "#fff";
+            } else if (opt.innerText === selected) {
+                opt.style.background = "#dc3545";
+                opt.style.color = "#fff";
+            }
+        });
+        document.getElementById("next-btn").style.display = "inline-block";
+    }
+    
+    // Next question
+    document.getElementById("next-btn").addEventListener("click", () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizQuestions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    });
+    
+    // Show result
+    function showResult() {
+        document.getElementById("quiz-container").style.display = "none";
+        document.getElementById("result-container").style.display = "block";
+        document.getElementById("score").innerText = `${score} / ${quizQuestions.length}`;
+    
+        // Simulate result storage in localStorage (instead of results.json)
+        let results = JSON.parse(localStorage.getItem("quizResults")) || [];
+        results.push({ date: new Date().toLocaleString(), score: score });
+        localStorage.setItem("quizResults", JSON.stringify(results));
+    }
+    
+    // Restart quiz
+    function restartQuiz() {
+        score = 0;
+        currentQuestionIndex = 0;
+        quizQuestions = [...questions].sort(() => Math.random() - 0.5);
+        document.getElementById("quiz-container").style.display = "block";
+        document.getElementById("result-container").style.display = "none";
+        loadQuestion();
+    }
+    
+    // Start quiz
+    loadQuestion();
+    </script>
+    
+    </body>
+    </html>
+
+
