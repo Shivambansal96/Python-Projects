@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple CRM Tool</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  header {
+    background: #4a90e2;
+    padding: 20px 30px;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1.1px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px 50px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 12px;
+    border-bottom: 3px solid #4a90e2;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    background: #e6f0ff;
+    color: #4a90e2;
+    user-select: none;
+    transition: background 0.3s, color 0.3s;
+  }
+  .tab.active {
+    background: white;
+    color: #222;
+    border-bottom: 3px solid white;
+    box-shadow: 0 3px 10px rgba(74,144,226,0.3);
+  }
+
+  /* Section common styling */
+  section {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.05);
+    display: none;
+  }
+  section.active {
+    display: block;
+  }
+
+  /* Form styling */
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 25px;
+  }
+  form input, form select {
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    flex: 1 1 180px;
+    transition: border-color 0.3s;
+  }
+  form input:focus, form select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 8px rgba(74,144,226,0.4);
+  }
+  form button {
+    background: #4a90e2;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 25px;
+    cursor: pointer;
+    border-radius: 6px;
+    flex: 1 1 150px;
+    transition: background 0.3s;
+  }
+  form button:hover {
+    background: #357abd;
+  }
+
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background: #f0f6ff;
+    font-weight: 700;
+    color: #4a90e2;
+  }
+  tr:hover {
+    background: #f9fbff;
+  }
+
+  /* Buttons in table */
+  .btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: background 0.3s;
+  }
+  .btn-edit {
+    background: #ffa726;
+    color: white;
+  }
+  .btn-edit:hover {
+    background: #fb8c00;
+  }
+  .btn-delete {
+    background: #e53935;
+    color: white;
+  }
+  .btn-delete:hover {
+    background: #b71c1c;
+  }
+  .btn-won {
+    background: #43a047;
+    color: white;
+  }
+  .btn-won:hover {
+    background: #2e7d32;
+  }
+  .btn-lost {
+    background: #ef5350;
+    color: white;
+  }
+  .btn-lost:hover {
+    background: #b71c1c;
+  }
+
+  /* Search bar */
+  .search-bar {
+    margin-bottom: 18px;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    transition: border-color 0.3s;
+  }
+  .search-bar input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 10px rgba(74,144,226,0.5);
+    outline: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    form {
+      flex-direction: column;
+    }
+    form input, form select, form button {
+      flex: 1 1 auto;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    tr {
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 0.05);
+      padding: 12px 10px;
+    }
+    td {
+      border: none;
+      position: relative;
+      padding-left: 50%;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    td:before {
+      position: absolute;
+      top: 12px;
+      left: 15px;
+      width: 45%;
+      padding-right: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      color: #4a90e2;
+    }
+    td:nth-of-type(1):before { content: attr(data-label) " :"; }
+    td:nth-of-type(2):before { content: attr(data-label) " :"; }
+    td:nth-of-type(3):before { content: attr(data-label) " :"; }
+    td:nth-of-type(4):before { content: attr(data-label) " :"; }
+    td:nth-of-type(5):before { content: attr(data-label) " :"; }
+  }
+
+  /* Small badges */
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    display: inline-block;
+  }
+  .status-lead {
+    background-color: #4a90e2;
+  }
+  .status-won {
+    background-color: #43a047;
+  }
+  .status-lost {
+    background-color: #e53935;
+  }
+</style>
+</head>
+<body>
+<header>Simple CRM Tool</header>
+<main>
+  <div class="tabs">
+    <div class="tab active" data-tab="customers">Customers</div>
+    <div class="tab" data-tab="leads">Leads</div>
+    <div class="tab" data-tab="sales">Sales</div>
+    <div class="tab" data-tab="reports">Reports</div>
+  </div>
+
+  <!-- Customers Section -->
+  <section id="customers" class="active">
+    <div class="search-bar">
+      <input type="text" id="customerSearch" placeholder="Search customers by name or email..." />
+    </div>
+    <form id="customerForm">
+      <input type="hidden" id="customerId" />
+      <input type="text" id="customerName" placeholder="Full Name" required />
+      <input type="email" id="customerEmail" placeholder="Email" required />
+      <input type="tel" id="customerPhone" placeholder="Phone" />
+      <button type="submit" id="customerSubmitBtn">Add Customer</button>
+      <button type="button" id="customerCancelBtn" style="display:none; background:#777;">Cancel</button>
+    </form>
+    <table id="customerTable" aria-label="Customer list">
+      <thead>
+        <tr>
+          <th>Name</th><th>Email</th><th>Phone</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="exportCSVBtn" style="margin-top: 15px; background:#357abd;">Export Customers to CSV</button>
+  </section>
+
+  <!-- Leads Section -->
+  <section id="leads">
+    <form id="leadForm">
+      <input type="text" id="leadName" placeholder="Lead Name" required />
+      <input type="email" id="leadEmail" placeholder="Lead Email" />
+      <select id="leadStatus" required>
+        <option value="lead">Lead</option>
+        <option value="won">Won</option>
+        <option value="lost">Lost</option>
+      </select>
+      <button type="submit">Add Lead</button>
+    </form>
+    <table id="leadTable" aria-label="Lead list">
+      <thead>
+        <tr>
+          <th>Name</th><th>Email</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Sales Section -->
+  <section id="sales">
+    <form id="saleForm">
+      <select id="saleCustomer" required>
+        <option value="">Select Customer</option>
+      </select>
+      <input type="number" id="saleAmount" placeholder="Sale Amount" min="0.01" step="0.01" required />
+      <button type="submit">Record Sale</button>
+    </form>
+    <table id="salesTable" aria-label="Sales list">
+      <thead>
+        <tr>
+          <th>Customer</th><th>Amount</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Reports Section -->
+  <section id="reports">
+    <h2>Top Customers by Purchase Amount</h2>
+    <table id="reportTable" aria-label="Top customers report">
+      <thead>
+        <tr>
+          <th>Customer</th><th>Total Purchases</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  // CRM Data Storage (in-memory)
+  let customers = [];
+  let leads = [];
+  let sales = [];
+
+  // DOM Elements
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('section');
+
+  // --- TAB SWITCH ---
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tab;
+      sections.forEach(sec => {
+        sec.id === target ? sec.classList.add('active') : sec.classList.remove('active');
+      });
+      if(target === 'sales') populateSaleCustomerDropdown();
+      if(target === 'reports') renderReport();
+    });
+  });
+
+  // === CUSTOMER MANAGEMENT ===
+  const customerForm = document.getElementById('customerForm');
+  const customerTableBody = document.querySelector('#customerTable tbody');
+  const customerSearchInput = document.getElementById('customerSearch');
+  const customerSubmitBtn = document.getElementById('customerSubmitBtn');
+  const customerCancelBtn = document.getElementById('customerCancelBtn');
+  const customerIdInput = document.getElementById('customerId');
+  const customerNameInput = document.getElementById('customerName');
+  const customerEmailInput = document.getElementById('customerEmail');
+  const customerPhoneInput = document.getElementById('customerPhone');
+
+  function renderCustomers(filter = '') {
+    customerTableBody.innerHTML = '';
+    const filtered = customers.filter(c => 
+      c.name.toLowerCase().includes(filter.toLowerCase()) ||
+      c.email.toLowerCase().includes(filter.toLowerCase())
+    );
+    if(filtered.length === 0) {
+      customerTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">No customers found</td></tr>';
+      return;
+    }
+    filtered.forEach(({id, name, email, phone}) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Name">${name}</td>
+        <td data-label="Email">${email}</td>
+        <td data-label="Phone">${phone || '-'}</td>
+        <td data-label="Actions">
+          <button class="btn btn-edit" data-id="${id}">Edit</button>
+          <button class="btn btn-delete" data-id="${id}">Delete</button>
+        </td>
+      `;
+      customerTableBody.appendChild(tr);
+    });
+  }
+
+  function resetCustomerForm() {
+    customerIdInput.value = '';
+    customerNameInput.value = '';
+    customerEmailInput.value = '';
+    customerPhoneInput.value = '';
+    customerSubmitBtn.textContent = 'Add Customer';
+    customerCancelBtn.style.display = 'none';
+  }
+
+  customerForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const id = customerIdInput.value;
+    const name = customerNameInput.value.trim();
+    const email = customerEmailInput.value.trim();
+    const phone = customerPhoneInput.value.trim();
+
+    // Validation: Email unique?
+    if(!name || !email) return alert('Name and Email are required.');
+
+    if(id) {
+      // Update existing
+      const index = customers.findIndex(c => c.id === id);
+      if(index !== -1) {
+        customers[index].name = name;
+        customers[index].email = email;
+        customers[index].phone = phone;
+      }
+      alert('Customer updated successfully.');
+    } else {
+      // Add new
+      if(customers.some(c => c.email.toLowerCase() === email.toLowerCase())) {
+        return alert('Email already exists.');
+      }
+      customers.push({
+        id: crypto.randomUUID(),
+        name,
+        email,
+        phone
+      });
+      alert('Customer added successfully.');
+    }
+    renderCustomers(customerSearchInput.value);
+    resetCustomerForm();
+  });
+
+  customerTableBody.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-edit')) {
+      const id = e.target.dataset.id;
+      const cust = customers.find(c => c.id === id);
+      if(cust) {
+        customerIdInput.value = cust.id;
+        customerNameInput.value = cust.name;
+        customerEmailInput.value = cust.email;
+        customerPhoneInput.value = cust.phone;
+        customerSubmitBtn.textContent = 'Update Customer';
+        customerCancelBtn.style.display = 'inline-block';
+      }
+    }
+    if(e.target.classList.contains('btn-delete')) {
+      const id = e.target.dataset.id;
+      if(confirm('Delete this customer? All related sales will be removed.')) {
+        customers = customers.filter(c => c.id !== id);
+        sales = sales.filter(s => s.customerId !== id);
+        alert('Customer and related sales deleted.');
+        renderCustomers(customerSearchInput.value);
+        renderSales();
+      }
+    }
+  });
+
+  customerCancelBtn.addEventListener('click', e => {
+    e.preventDefault();
+    resetCustomerForm();
+  });
+
+  customerSearchInput.addEventListener('input', () => {
+    renderCustomers(customerSearchInput.value);
+  });
+
+  // Export to CSV
+  document.getElementById('exportCSVBtn').addEventListener('click', () => {
+    if(customers.length === 0) return alert('No customers to export.');
+    const csvRows = [
+      ['Name', 'Email', 'Phone'],
+      ...customers.map(c => [c.name, c.email, c.phone || ''])
+    ];
+    const csvContent = csvRows.map(r => r.map(v => `"${v.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customers_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // === LEAD TRACKING ===
+  const leadForm = document.getElementById('leadForm');
+  const leadTableBody = document.querySelector('#leadTable tbody');
+
+  function renderLeads() {
+    leadTableBody.innerHTML = '';
+    if(leads.length === 0) {
+      leadTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">No leads found</td></tr>';
+      return;
+    }
+    leads.forEach(({id, name, email, status}) => {
+      const tr = document.createElement('tr');
+      let statusClass = '';
+      if(status === 'won') statusClass = 'status-won';
+      else if(status === 'lost') statusClass = 'status-lost';
+      else statusClass = 'status-lead';
+
+      tr.innerHTML = `
+        <td data-label="Name">${name}</td>
+        <td data-label="Email">${email || '-'}</td>
+        <td data-label="Status"><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+        <td data-label="Actions">
+          ${status === 'lead' ? `
+            <button class="btn btn-won" data-id="${id}" data-action="won">Mark Won</button>
+            <button class="btn btn-lost" data-id="${id}" data-action="lost">Mark Lost</button>
+          ` : ''}
+          <button class="btn btn-delete" data-id="${id}" data-action="delete">Delete</button>
+        </td>
+      `;
+      leadTableBody.appendChild(tr);
+    });
+  }
+
+  leadForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('leadName').value.trim();
+    const email = document.getElementById('leadEmail').value.trim();
+    const status = document.getElementById('leadStatus').value;
+    if(!name) return alert('Lead name required.');
+
+    leads.push({
+      id: crypto.randomUUID(),
+      name,
+      email,
+      status
+    });
+
+    leadForm.reset();
+    renderLeads();
+  });
+
+  leadTableBody.addEventListener('click', e => {
+    if(e.target.classList.contains('btn-won') || e.target.classList.contains('btn-lost')) {
+      const id = e.target.dataset.id;
+      const action = e.target.dataset.action;
+      const lead = leads.find(l => l.id === id);
+      if(lead) {
+        lead.status = action;
+        alert(`Lead marked as ${action.toUpperCase()}.`);
+        renderLeads();
+      }
+    }
+    if(e.target.classList.contains('btn-delete')) {
+      const id = e.target.dataset.id;
+      if(confirm('Delete this lead?')) {
+        leads = leads.filter(l => l.id !== id);
+        renderLeads();
+      }
+    }
+  });
+
+  // === SALES RECORDING ===
+  const saleForm = document.getElementById('saleForm');
+  const salesTableBody = document.querySelector('#salesTable tbody');
+  const saleCustomerSelect = document.getElementById('saleCustomer');
+  const saleAmountInput = document.getElementById('saleAmount');
+
+  function populateSaleCustomerDropdown() {
+    saleCustomerSelect.innerHTML = '<option value="">Select Customer</option>';
+    customers.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      saleCustomerSelect.appendChild(opt);
+    });
+  }
+
+  function renderSales() {
+    salesTableBody.innerHTML = '';
+    if(sales.length === 0) {
+      salesTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#888;">No sales recorded</td></tr>';
+      return;
+    }
+    sales.forEach(({id, customerId, amount, date}) => {
+      const customer = customers.find(c => c.id === customerId);
+      const customerName = customer ? customer.name : '[Deleted Customer]';
+      const dateStr = new Date(date).toLocaleString();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Customer">${customerName}</td>
+        <td data-label="Amount">$${amount.toFixed(2)}</td>
+        <td data-label="Date">${dateStr}</td>
+      `;
+      salesTableBody.appendChild(tr);
+    });
+  }
+
+  saleForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const customerId = saleCustomerSelect.value;
+    const amount = parseFloat(saleAmountInput.value);
+
+    if(!customerId) return alert('Please select a customer.');
+    if(isNaN(amount) || amount <= 0) return alert('Enter a valid sale amount.');
+
+    sales.push({
+      id: crypto.randomUUID(),
+      customerId,
+      amount,
+      date: new Date().toISOString()
+    });
+    alert('Sale recorded.');
+    saleForm.reset();
+    renderSales();
+  });
+
+  // === REPORTS ===
+  const reportTableBody = document.querySelector('#reportTable tbody');
+
+  function renderReport() {
+    // Aggregate total purchases by customer
+    const totals = {};
+    sales.forEach(sale => {
+      if(!totals[sale.customerId]) totals[sale.customerId] = 0;
+      totals[sale.customerId] += sale.amount;
+    });
+
+    // Create array with customer names and totals
+    const reportData = Object.entries(totals).map(([customerId, total]) => {
+      const customer = customers.find(c => c.id === customerId);
+      return {
+        name: customer ? customer.name : '[Deleted Customer]',
+        total
+      };
+    });
+
+    // Sort descending
+    reportData.sort((a,b) => b.total - a.total);
+
+    reportTableBody.innerHTML = '';
+    if(reportData.length === 0) {
+      reportTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">No sales data available</td></tr>';
+      return;
+    }
+
+    reportData.forEach(({name, total}) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Customer">${name}</td>
+        <td data-label="Total Purchases">$${total.toFixed(2)}</td>
+      `;
+      reportTableBody.appendChild(tr);
+    });
+  }
+
+  // Initialize rendering
+  renderCustomers();
+  renderLeads();
+  renderSales();
+
+</script>
+</body>
+</html>
