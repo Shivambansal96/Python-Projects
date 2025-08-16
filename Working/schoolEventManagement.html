@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>College Event Registration System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #f2f4f8; padding: 20px; color: #333; }
+    h1 { text-align: center; margin-bottom: 25px; }
+
+    .container { max-width: 900px; margin: auto; }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card h2 { margin-bottom: 15px; }
+
+    input, select {
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    button {
+      padding: 8px 15px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    table th { background-color: #007bff; color: #fff; }
+
+    .export-btn { background-color: #28a745; }
+    .export-btn:hover { background-color: #1e7e34; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>College Event Registration System</h1>
+
+  <!-- Add Event -->
+  <div class="card">
+    <h2>Add Event</h2>
+    <input id="event-name" type="text" placeholder="Event Name">
+    <input id="event-capacity" type="number" placeholder="Capacity">
+    <button onclick="addEvent()">Add Event</button>
+  </div>
+
+  <!-- Register Participant -->
+  <div class="card">
+    <h2>Register Participant</h2>
+    <input id="participant-name" type="text" placeholder="Name">
+    <input id="participant-email" type="email" placeholder="Email">
+    <input id="participant-phone" type="text" placeholder="Phone (10 digits)">
+    <select id="event-select">
+      <option value="">-- Select Event --</option>
+    </select>
+    <button onclick="registerParticipant()">Register</button>
+  </div>
+
+  <!-- Register Audience -->
+  <div class="card">
+    <h2>Register Audience</h2>
+    <input id="audience-name" type="text" placeholder="Name">
+    <input id="audience-email" type="email" placeholder="Email">
+    <select id="audience-event-select">
+      <option value="">-- Select Event --</option>
+    </select>
+    <button onclick="registerAudience()">Register as Audience</button>
+  </div>
+
+  <!-- Events and Participants & Audience -->
+  <div class="card">
+    <h2>Events: Participants & Audience</h2>
+    <div id="event-list"></div>
+    <button class="export-btn" onclick="exportEventParticipants()">Export Event Participants CSV</button>
+  </div>
+
+  <!-- Global Attendees List -->
+  <div class="card">
+    <h2>All Attendees</h2>
+    <div id="attendee-table-container"></div>
+    <button class="export-btn" onclick="exportAttendees()">Export Attendees CSV</button>
+  </div>
+
+  <!-- Global Audience List -->
+  <div class="card">
+    <h2>All Audience Members</h2>
+    <div id="audience-table-container"></div>
+    <button class="export-btn" onclick="exportAudience()">Export Audience CSV</button>
+  </div>
+
+</div>
+
+<script>
+  const events = []; // { name, capacity, participants: [], audience: [] }
+  const attendees = []; // Global participant list
+  const audienceList = []; // Global audience list
+
+  function addEvent() {
+    const name = document.getElementById('event-name').value.trim();
+    const capacity = parseInt(document.getElementById('event-capacity').value.trim());
+
+    if (!name || isNaN(capacity) || capacity <= 0) {
+      alert("Please enter valid Event name and Capacity.");
+      return;
+    }
+
+    events.push({ name, capacity, participants: [], audience: [] });
+    updateEventDropdown();
+    renderEvents();
+    document.getElementById('event-name').value = "";
+    document.getElementById('event-capacity').value = "";
+  }
+
+  function updateEventDropdown() {
+    const participantSelect = document.getElementById('event-select');
+    const audienceSelect = document.getElementById('audience-event-select');
+
+    participantSelect.innerHTML = '<option value="">-- Select Event --</option>';
+    audienceSelect.innerHTML = '<option value="">-- Select Event --</option>';
+
+    events.forEach((evt, index) => {
+      const option1 = document.createElement('option');
+      const option2 = document.createElement('option');
+
+      option1.value = index;
+      option1.textContent = evt.name;
+
+      option2.value = index;
+      option2.textContent = evt.name;
+
+      participantSelect.appendChild(option1);
+      audienceSelect.appendChild(option2);
+    });
+  }
+
+  function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  function registerParticipant() {
+    const name = document.getElementById('participant-name').value.trim();
+    const email = document.getElementById('participant-email').value.trim();
+    const phone = document.getElementById('participant-phone').value.trim();
+    const eventIndex = document.getElementById('event-select').value;
+
+    if (!name || !email || !phone || eventIndex === "") {
+      alert("Please fill all fields and select event.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      alert("Invalid email address.");
+      return;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      alert("Phone number must be 10 digits.");
+      return;
+    }
+
+    const evt = events[eventIndex];
+    if (evt.participants.length >= evt.capacity) {
+      alert("This event is full.");
+      return;
+    }
+
+    const participant = { name, email, phone, event: evt.name };
+
+    evt.participants.push(participant);
+    attendees.push(participant);
+
+    renderEvents();
+    renderAttendees();
+
+    document.getElementById('participant-name').value = "";
+    document.getElementById('participant-email').value = "";
+    document.getElementById('participant-phone').value = "";
+  }
+
+  function registerAudience() {
+    const name = document.getElementById('audience-name').value.trim();
+    const email = document.getElementById('audience-email').value.trim();
+    const eventIndex = document.getElementById('audience-event-select').value;
+
+    if (!name || !email || eventIndex === "") {
+      alert("Please fill all fields and select event.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      alert("Invalid email address.");
+      return;
+    }
+
+    const evt = events[eventIndex];
+    const audienceMember = { name, email, event: evt.name };
+
+    evt.audience.push(audienceMember);
+    audienceList.push(audienceMember);
+
+    renderEvents();
+    renderAudience();
+
+    document.getElementById('audience-name').value = "";
+    document.getElementById('audience-email').value = "";
+  }
+
+  function renderEvents() {
+    const div = document.getElementById('event-list');
+    div.innerHTML = "";
+
+    events.forEach(evt => {
+      const card = document.createElement('div');
+      card.style.marginBottom = "15px";
+
+      let html = `<h3>${evt.name} (Capacity: ${evt.capacity})</h3>`;
+      html += `<p><strong>Participants (${evt.participants.length}):</strong></p>`;
+      html += "<ul>";
+      evt.participants.forEach(p => {
+        html += `<li>${p.name} - ${p.email}</li>`;
+      });
+      html += "</ul>";
+
+      html += `<p><strong>Audience (${evt.audience.length}):</strong></p>`;
+      html += "<ul>";
+      evt.audience.forEach(a => {
+        html += `<li>${a.name} - ${a.email}</li>`;
+      });
+      html += "</ul>";
+
+      card.innerHTML = html;
+      div.appendChild(card);
+    });
+  }
+
+  function renderAttendees() {
+    let tableHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Event</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    attendees.forEach(att => {
+      tableHTML += `
+        <tr>
+          <td>${att.name}</td>
+          <td>${att.email}</td>
+          <td>${att.phone}</td>
+          <td>${att.event}</td>
+        </tr>
+      `;
+    });
+    tableHTML += "</tbody></table>";
+
+    document.getElementById('attendee-table-container').innerHTML = tableHTML;
+  }
+
+  function renderAudience() {
+    let tableHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Event</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    audienceList.forEach(aud => {
+      tableHTML += `
+        <tr>
+          <td>${aud.name}</td>
+          <td>${aud.email}</td>
+          <td>${aud.event}</td>
+        </tr>
+      `;
+    });
+    tableHTML += "</tbody></table>";
+
+    document.getElementById('audience-table-container').innerHTML = tableHTML;
+  }
+
+  function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  }
+
+  function exportEventParticipants() {
+    let csv = "";
+    events.forEach(evt => {
+      csv += `Event: ${evt.name}\nName,Email,Phone\n`;
+      evt.participants.forEach(p => {
+        csv += `${p.name},${p.email},${p.phone}\n`;
+      });
+      csv += "\n";
+    });
+    downloadCSV(csv, "event_participants.csv");
+  }
+
+  function exportAttendees() {
+    let csv = "Name,Email,Phone,Event\n";
+    attendees.forEach(a => {
+      csv += `${a.name},${a.email},${a.phone},${a.event}\n`;
+    });
+    downloadCSV(csv, "all_attendees.csv");
+  }
+
+  function exportAudience() {
+    let csv = "Name,Email,Event\n";
+    audienceList.forEach(a => {
+      csv += `${a.name},${a.email},${a.event}\n`;
+    });
+    downloadCSV(csv, "audience_members.csv");
+  }
+
+</script>
+</body>
+</html>
